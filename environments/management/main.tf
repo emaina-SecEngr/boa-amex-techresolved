@@ -74,6 +74,7 @@ provider "aws" {
 
 provider "azuread" {
   tenant_id = "288a15d1-700c-482b-a591-7c1d4e6c4f3c"
+  use_cli   = true
 }
 
 # ============================================================
