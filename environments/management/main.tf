@@ -17,6 +17,10 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 5.0"
     }
+    azuread = {
+      source  = "hashicorp/azuread"
+      version = "~> 2.0"
+    }
   }
 
   backend "s3" {
@@ -66,6 +70,10 @@ provider "aws" {
       Repository  = "boa-amex-techresolved"
     }
   }
+}
+
+provider "azuread" {
+  tenant_id = "288a15d1-700c-482b-a591-7c1d4e6c4f3c"
 }
 
 # ============================================================
@@ -209,6 +217,75 @@ module "management_baseline" {
   common_tags = var.common_tags
 
   depends_on = [aws_s3_bucket_policy.cloudtrail_log_archive]
+}
+# ============================================================
+# MODULE CALL — iam-identity-center
+# Phase 1, Module 3 — SCPs + Permission Sets + Break Glass
+# Entra ID SAML + SCIM configured manually (see docs/)
+# ============================================================
+module "iam_identity_center" {
+  source = "../../modules/iam-identity-center"
+
+  aws_region                  = var.aws_region
+  project_prefix              = var.project_prefix
+  management_account_id       = var.management_account_id
+  security_tooling_account_id = var.security_tooling_account_id
+  audit_account_id            = "445459853572"
+
+  # OU IDs from aws-organization module
+  root_id              = module.aws_organization.root_id
+  security_ou_id       = module.aws_organization.security_ou_id
+  production_ou_id     = module.aws_organization.production_ou_id
+  non_production_ou_id = module.aws_organization.non_production_ou_id
+  compliance_ou_id     = module.aws_organization.compliance_ou_id
+  pipeline_ou_id       = module.aws_organization.pipeline_ou_id
+
+  # Deploy Permission Sets and SCPs
+  deploy_identity_center     = true
+  deploy_scps                = true
+
+  # Entra ID connected manually via console
+  # See docs/entra-id-integration.md for details
+  deploy_entra_id_connection = false
+  entra_tenant_id            = "288a15d1-700c-482b-a591-7c1d4e6c4f3c"
+  entra_idp_sign_in_url      = "https://login.microsoftonline.com/288a15d1-700c-482b-a591-7c1d4e6c4f3c/saml2"
+  entra_idp_issuer_url       = "https://sts.windows.net/288a15d1-700c-482b-a591-7c1d4e6c4f3c/"
+
+  # Session durations
+  security_auditor_session_hours = 8
+  developer_session_hours        = 4
+  network_admin_session_hours    = 4
+  break_glass_session_hours      = 1
+  occ_examiner_session_hours     = 8
+
+  # Break Glass alerts
+  break_glass_alert_email   = "emaina@arizona.edu"
+  break_glass_sns_topic_arn = ""
+
+  # Approved regions
+  approved_regions = ["us-east-1", "us-west-2"]
+
+  common_tags = var.common_tags
+}
+
+output "permission_sets" {
+  description = "Deployed Permission Set ARNs"
+  value       = module.iam_identity_center.permission_set_arns
+}
+
+output "scp_ids" {
+  description = "Deployed SCP IDs"
+  value       = module.iam_identity_center.scp_ids
+}
+
+output "sso_portal_url" {
+  description = "SSO login portal URL"
+  value       = module.iam_identity_center.sso_portal_url
+}
+
+output "next_steps" {
+  description = "Next configuration steps"
+  value       = module.iam_identity_center.next_steps
 }
 
 # ============================================================
