@@ -47,6 +47,77 @@ provider "aws" {
   }
 }
 
+# Cross-account provider — Security Tooling account, where the
+# Log Archive bucket lives. Assumes OrganizationAccountAccessRole
+# via the local "security-tooling" AWS CLI profile.
+provider "aws" {
+  alias   = "security_tooling"
+  region  = var.aws_region
+  profile = "security-tooling"
+
+  default_tags {
+    tags = {
+      Project     = "BOA-AMEX-TechResolved"
+      Owner       = "Eliud-Maina"
+      Consultant  = "Abuhari-Consulting-Services"
+      Environment = "SecurityTooling"
+      ManagedBy   = "Terraform"
+      Phase       = "1-Foundation"
+      Repository  = "boa-amex-techresolved"
+    }
+  }
+}
+
+# ============================================================
+# Log Archive bucket policy — grants the org CloudTrail trail
+# permission to write to the existing bucket in Security Tooling.
+# Trail ARN is constructed rather than referenced from the module
+# output to avoid a dependency cycle (CloudTrail validates this
+# policy at creation time, so the policy must exist first).
+# ============================================================
+locals {
+  org_trail_arn = "arn:aws:cloudtrail:${var.aws_region}:${var.management_account_id}:trail/${var.project_prefix}-org-trail"
+}
+
+resource "aws_s3_bucket_policy" "cloudtrail_log_archive" {
+  provider = aws.security_tooling
+  bucket   = "abutech-amexsec-log-archive-368351959735"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid       = "AWSCloudTrailAclCheck"
+        Effect    = "Allow"
+        Principal = { Service = "cloudtrail.amazonaws.com" }
+        Action    = "s3:GetBucketAcl"
+        Resource  = "arn:aws:s3:::abutech-amexsec-log-archive-368351959735"
+        Condition = {
+          StringEquals = {
+            "aws:SourceArn" = local.org_trail_arn
+          }
+        }
+      },
+      {
+        Sid       = "AWSCloudTrailWrite"
+        Effect    = "Allow"
+        Principal = { Service = "cloudtrail.amazonaws.com" }
+        Action    = "s3:PutObject"
+        Resource = [
+          "arn:aws:s3:::abutech-amexsec-log-archive-368351959735/org-cloudtrail/AWSLogs/${var.management_account_id}/*",
+          "arn:aws:s3:::abutech-amexsec-log-archive-368351959735/org-cloudtrail/AWSLogs/${var.organization_id}/*"
+        ]
+        Condition = {
+          StringEquals = {
+            "s3:x-amz-acl"  = "bucket-owner-full-control"
+            "aws:SourceArn" = local.org_trail_arn
+          }
+        }
+      }
+    ]
+  })
+}
+
 # ============================================================
 # MODULE CALL — aws-organization
 # Phase 1, Module 1 — must be complete before all others
@@ -87,6 +158,80 @@ module "aws_organization" {
   enable_config_delegated_admin      = false
 
   common_tags = var.common_tags
+}
+# ============================================================
+# MODULE CALL — management-baseline
+# Phase 1, Module 2 — org-wide CloudTrail + Config aggregator
+# + root account protection + IAM password policy
+#
+# PREREQUISITE: aws-organization module complete ✅
+# DELIVERS TO: Log Archive bucket in Security Tooling account
+# ============================================================
+module "management_baseline" {
+  source = "../../modules/management-baseline"
+
+  aws_region                  = var.aws_region
+  project_prefix              = var.project_prefix
+  management_account_id       = var.management_account_id
+  security_tooling_account_id = var.security_tooling_account_id
+  organization_id             = var.organization_id
+
+  # Org-wide CloudTrail — delivers to existing Log Archive bucket
+  enable_org_cloudtrail            = true
+  cloudtrail_log_bucket_name       = "abutech-amexsec-log-archive-368351959735"
+  cloudtrail_log_prefix            = "org-cloudtrail"
+  cloudtrail_kms_key_arn           = ""
+  cloudtrail_include_global_events = true
+  cloudtrail_multi_region          = true
+  cloudtrail_log_file_validation   = true
+  cloudtrail_s3_data_events        = false
+  cloudtrail_lambda_data_events    = false
+
+  # Config aggregator — pulls from all accounts
+  enable_config_aggregator    = true
+  config_aggregator_regions   = ["us-east-1"]
+
+  # Root account protection
+  enable_root_usage_alarm = true
+  security_alert_email    = "emaina@arizona.edu"
+
+  # IAM password policy
+  password_minimum_length        = 14
+  password_max_age_days          = 90
+  password_reuse_prevention      = 24
+  password_require_uppercase     = true
+  password_require_lowercase     = true
+  password_require_numbers       = true
+  password_require_symbols       = true
+  allow_users_to_change_password = true
+  hard_expiry                    = false
+
+  common_tags = var.common_tags
+
+  depends_on = [aws_s3_bucket_policy.cloudtrail_log_archive]
+}
+
+# ============================================================
+# MANAGEMENT BASELINE OUTPUTS
+# ============================================================
+output "org_cloudtrail_arn" {
+  description = "Organization-wide CloudTrail ARN"
+  value       = module.management_baseline.org_cloudtrail_arn
+}
+
+output "config_aggregator_arn" {
+  description = "Config aggregator ARN"
+  value       = module.management_baseline.config_aggregator_arn
+}
+
+output "baseline_status" {
+  description = "Management baseline component status"
+  value       = module.management_baseline.baseline_status
+}
+
+output "occ_evidence" {
+  description = "OCC examination evidence provided by this baseline"
+  value       = module.management_baseline.occ_evidence_note
 }
 
 # ============================================================
