@@ -16,3 +16,5 @@ override.tf.json
 *.key
 *.p12
 scim_token.txt
+**/.terraform/
+**/.terraform.lock.hcl
