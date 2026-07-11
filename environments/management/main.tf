@@ -138,10 +138,10 @@ resource "aws_s3_bucket_policy" "cloudtrail_log_archive" {
 module "aws_organization" {
   source = "../../modules/aws-organization"
 
-  aws_region            = var.aws_region
-  project_prefix        = var.project_prefix
-  organization_id       = var.organization_id
-  management_account_id = var.management_account_id
+  aws_region                  = var.aws_region
+  project_prefix              = var.project_prefix
+  organization_id             = var.organization_id
+  management_account_id       = var.management_account_id
   security_tooling_account_id = var.security_tooling_account_id
 
   # OU structure — create all OUs
@@ -197,8 +197,8 @@ module "management_baseline" {
   cloudtrail_lambda_data_events    = false
 
   # Config aggregator — pulls from all accounts
-  enable_config_aggregator    = true
-  config_aggregator_regions   = ["us-east-1"]
+  enable_config_aggregator  = true
+  config_aggregator_regions = ["us-east-1"]
 
   # Root account protection
   enable_root_usage_alarm = true
@@ -242,8 +242,8 @@ module "iam_identity_center" {
   pipeline_ou_id       = module.aws_organization.pipeline_ou_id
 
   # Deploy Permission Sets and SCPs
-  deploy_identity_center     = true
-  deploy_scps                = true
+  deploy_identity_center = true
+  deploy_scps            = true
 
   # Entra ID connected manually via console
   # See docs/entra-id-integration.md for details
@@ -267,6 +267,44 @@ module "iam_identity_center" {
   approved_regions = ["us-east-1", "us-west-2"]
 
   common_tags = var.common_tags
+}
+
+# ============================================================
+# MODULE CALL — audit-account
+# Phase 1, Module 4 — cross-account read-only roles for OCC
+# examiners, deployed into Management and Security Tooling.
+# ============================================================
+module "audit_account" {
+  source = "../../modules/audit-account"
+
+  providers = {
+    aws.management       = aws
+    aws.security_tooling = aws.security_tooling
+  }
+
+  aws_region                  = var.aws_region
+  project_prefix              = var.project_prefix
+  audit_account_id            = "445459853572"
+  management_account_id       = var.management_account_id
+  security_tooling_account_id = var.security_tooling_account_id
+
+  create_management_audit_role       = true
+  create_security_tooling_audit_role = true
+
+  common_tags = var.common_tags
+}
+
+output "audit_role_arns" {
+  description = "Cross-account AuditReadOnly role ARNs"
+  value = {
+    management       = module.audit_account.audit_role_arn_management
+    security_tooling = module.audit_account.audit_role_arn_security_tooling
+  }
+}
+
+output "occ_examination_guide" {
+  description = "How OCC examiners access each account"
+  value       = module.audit_account.occ_examination_guide
 }
 
 output "permission_sets" {
