@@ -55,6 +55,34 @@ output "guardduty_occ_evidence" {
 }
 
 # -----------------------------------------------------------
+# SECURITY HUB
+# -----------------------------------------------------------
+output "security_hub_arn" {
+  description = "Security Hub ARN"
+  value       = module.security_hub.security_hub_arn
+}
+
+output "security_hub_status" {
+  description = "Security Hub configuration summary"
+  value       = module.security_hub.security_hub_status
+}
+
+output "enabled_standards" {
+  description = "Compliance standards enabled"
+  value       = module.security_hub.enabled_standards
+}
+
+output "security_hub_alerts_topic_arn" {
+  description = "SNS topic ARN for critical Security Hub findings"
+  value       = module.security_hub.security_hub_alerts_topic_arn
+}
+
+output "occ_evidence_security_hub" {
+  description = "OCC evidence from Security Hub"
+  value       = module.security_hub.occ_evidence_note
+}
+
+# -----------------------------------------------------------
 # VERIFICATION COMMANDS
 # Run these after apply to confirm correct state
 # -----------------------------------------------------------
@@ -77,7 +105,8 @@ output "phase_2_status" {
   value = {
     log_archive   = "COMPLETE — ${module.log_archive.log_archive_bucket_name}"
     guardduty     = "COMPLETE — detector ${module.guardduty.detector_id}"
-    security_hub  = "NOT STARTED"
+    config        = "NOT STARTED — module reverted, see modules/config"
+    security_hub  = "COMPLETE — ${module.security_hub.security_hub_arn}"
     detective     = "NOT STARTED"
     security_lake = "NOT STARTED"
     wiz           = "NOT STARTED"

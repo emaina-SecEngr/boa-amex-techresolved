@@ -274,7 +274,23 @@ resource "aws_s3_bucket_policy" "log_archive" {
         }
       },
 
-      # GuardDuty findings export
+      # GuardDuty findings export — CreatePublishingDestination validates
+      # the destination at creation time and requires GetBucketLocation
+      # on the bucket itself, not just PutObject on the prefix.
+      {
+        Sid    = "AllowGuardDutyGetBucketLocation"
+        Effect = "Allow"
+        Principal = {
+          Service = "guardduty.amazonaws.com"
+        }
+        Action   = "s3:GetBucketLocation"
+        Resource = aws_s3_bucket.log_archive.arn
+        Condition = {
+          StringEquals = {
+            "aws:SourceOrgID" = var.organization_id
+          }
+        }
+      },
       {
         Sid    = "AllowGuardDutyWrite"
         Effect = "Allow"

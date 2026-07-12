@@ -155,3 +155,48 @@ module "guardduty" {
 
   depends_on = [module.log_archive]
 }
+
+# ============================================================
+# MODULE CALL — security_hub
+# Phase 2 — Security Hub as the org-wide findings aggregator
+#
+# PREREQUISITE: guardduty module complete (detector referenced
+# below)
+# ============================================================
+module "security_hub" {
+  source = "../../modules/security-hub"
+
+  aws_region                  = var.aws_region
+  project_prefix              = var.project_prefix
+  security_tooling_account_id = var.security_tooling_account_id
+  management_account_id       = var.management_account_id
+  organization_id             = var.organization_id
+  audit_account_id            = var.audit_account_id
+
+  enable_security_hub       = true
+  auto_enable_controls      = true
+  control_finding_generator = "SECURITY_CONTROL"
+
+  # Compliance standards
+  enable_cis_standard              = true
+  enable_pci_dss_standard          = true
+  enable_aws_foundational_standard = true
+  enable_nist_standard             = false
+
+  # Cross-account finding aggregation
+  enable_finding_aggregation = true
+
+  # Org-wide auto-enable for new accounts
+  enable_org_auto_enable = true
+
+  # Alerting — EventBridge rule fires for this severity and above
+  critical_finding_threshold = "CRITICAL"
+  security_alert_email       = var.security_alert_email
+
+  # Sentinel — disabled until Azure subscription fixed
+  enable_sentinel_integration = false
+
+  common_tags = var.common_tags
+
+  depends_on = [module.log_archive, module.guardduty]
+}

@@ -81,55 +81,13 @@ resource "aws_guardduty_detector_feature" "runtime_monitoring" {
 # Exports all findings to Log Archive bucket
 # Required for Security Lake ingestion → Sentinel
 # -----------------------------------------------------------
-
-# Create the guardduty prefix in the log archive bucket
-resource "aws_s3_object" "guardduty_prefix" {
-  count                  = var.enable_findings_export ? 1 : 0
-  bucket                 = var.log_archive_bucket_name
-  key                    = "guardduty/"
-  content                = ""
-  server_side_encryption = "aws:kms"
-  kms_key_id             = var.log_archive_kms_key_arn
-}
-
 resource "aws_guardduty_publishing_destination" "s3" {
   count           = var.enable_findings_export ? 1 : 0
   detector_id     = aws_guardduty_detector.main.id
   destination_arn = "arn:aws:s3:::${var.log_archive_bucket_name}/guardduty"
   kms_key_arn     = var.log_archive_kms_key_arn
 
-  depends_on = [
-    aws_guardduty_detector.main,
-    aws_s3_object.guardduty_prefix
-  ]
-}
-
-# -----------------------------------------------------------
-# ORG-WIDE AUTO-ENABLE
-# Automatically enables GuardDuty in all new accounts
-# New accounts added to Organization are immediately protected
-# -----------------------------------------------------------
-resource "aws_guardduty_organization_configuration" "main" {
-  auto_enable_organization_members = var.enable_org_auto_enable ? "ALL" : "NONE"
-  detector_id                      = aws_guardduty_detector.main.id
-
-  datasources {
-    s3_logs {
-      auto_enable = var.enable_s3_protection
-    }
-    kubernetes {
-      audit_logs {
-        enable = var.enable_eks_protection
-      }
-    }
-    malware_protection {
-      scan_ec2_instance_with_findings {
-        ebs_volumes {
-          auto_enable = var.enable_malware_protection
-        }
-      }
-    }
-  }
+  depends_on = [aws_guardduty_detector.main]
 }
 
 # -----------------------------------------------------------

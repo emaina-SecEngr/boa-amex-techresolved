@@ -162,7 +162,7 @@ module "aws_organization" {
   # Delegated administrator — enable after Phase 2 is deployed
   # Security Tooling must have GuardDuty/SecHub running first
   enable_guardduty_delegated_admin   = true
-  enable_securityhub_delegated_admin = false
+  enable_securityhub_delegated_admin = true
   enable_detective_delegated_admin   = false
   enable_config_delegated_admin      = false
 
