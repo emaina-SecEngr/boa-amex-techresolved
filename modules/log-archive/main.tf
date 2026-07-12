@@ -65,7 +65,8 @@ resource "aws_kms_key" "log_archive" {
         }
         Action = [
           "kms:GenerateDataKey*",
-          "kms:DescribeKey"
+          "kms:DescribeKey",
+          "kms:Decrypt"
         ]
         Resource = "*"
       },
@@ -284,7 +285,6 @@ resource "aws_s3_bucket_policy" "log_archive" {
         Resource = "${aws_s3_bucket.log_archive.arn}/guardduty/*"
         Condition = {
           StringEquals = {
-            "s3:x-amz-acl"    = "bucket-owner-full-control"
             "aws:SourceOrgID" = var.organization_id
           }
         }

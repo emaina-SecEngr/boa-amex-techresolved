@@ -37,6 +37,24 @@ output "occ_evidence" {
 }
 
 # -----------------------------------------------------------
+# GUARDDUTY
+# -----------------------------------------------------------
+output "guardduty_detector_id" {
+  description = "GuardDuty detector ID"
+  value       = module.guardduty.detector_id
+}
+
+output "guardduty_status" {
+  description = "GuardDuty configuration summary"
+  value       = module.guardduty.guardduty_status
+}
+
+output "guardduty_occ_evidence" {
+  description = "OCC evidence from GuardDuty"
+  value       = module.guardduty.occ_evidence_note
+}
+
+# -----------------------------------------------------------
 # VERIFICATION COMMANDS
 # Run these after apply to confirm correct state
 # -----------------------------------------------------------
@@ -58,7 +76,7 @@ output "phase_2_status" {
   description = "Phase 2 Security Tooling build status"
   value = {
     log_archive   = "COMPLETE — ${module.log_archive.log_archive_bucket_name}"
-    guardduty     = "NOT STARTED"
+    guardduty     = "COMPLETE — detector ${module.guardduty.detector_id}"
     security_hub  = "NOT STARTED"
     detective     = "NOT STARTED"
     security_lake = "NOT STARTED"

@@ -28,6 +28,11 @@ variable "security_alert_email" {
   default = "emaina@arizona.edu"
 }
 
+variable "audit_account_id" {
+  type    = string
+  default = "445459853572"
+}
+
 variable "common_tags" {
   type = map(string)
   default = {

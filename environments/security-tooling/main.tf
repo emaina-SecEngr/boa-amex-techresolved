@@ -93,3 +93,65 @@ module "log_archive" {
   security_alert_email = var.security_alert_email
   common_tags          = var.common_tags
 }
+
+# ============================================================
+# MODULE CALL — guardduty
+# Phase 2, Module 2 — org-wide threat detection
+#
+# IMPORT REQUIRED before first apply:
+#   cd environments/security-tooling
+#   terraform import module.guardduty.aws_guardduty_detector.main \
+#     b6cf6963ce4553017b19d5bb98e6b209
+# ============================================================
+module "guardduty" {
+  source = "../../modules/guardduty"
+
+  aws_region                  = var.aws_region
+  project_prefix              = var.project_prefix
+  security_tooling_account_id = var.security_tooling_account_id
+  management_account_id       = var.management_account_id
+  organization_id             = var.organization_id
+  audit_account_id            = var.audit_account_id
+
+  # Existing detector — imported not created
+  existing_detector_id = "b6cf6963ce4553017b19d5bb98e6b209"
+
+  # Detector configuration
+  enable_guardduty             = true
+  finding_publishing_frequency = "FIFTEEN_MINUTES"
+
+  # Protection plans
+  # guardduty:UpdateDetector is no longer denied by the
+  # DenyDisablingSecurity SCP (p-qondnimf) — see modules/iam-identity-center/scps.tf
+  enable_s3_protection      = true
+  enable_eks_protection     = true
+  enable_malware_protection = true
+  enable_rds_protection     = true
+  enable_lambda_protection  = true
+  enable_runtime_monitoring = false
+
+  # Findings export to log archive
+  enable_findings_export  = true
+  log_archive_bucket_name = module.log_archive.log_archive_bucket_name
+  log_archive_kms_key_arn = module.log_archive.log_archive_kms_key_arn
+
+  # Org-wide auto-enable
+  enable_org_auto_enable = true
+  # Empty — org auto-enable (enable_org_auto_enable) already covers
+  # every member account, including Audit. Manual invite via
+  # member_accounts conflicts with autoEnableOrganizationMembers=ALL
+  # and AWS rejects it outright.
+  member_accounts = []
+
+  # Alerting
+  high_severity_threshold  = 7.0
+  security_alert_topic_arn = ""
+  security_alert_email     = var.security_alert_email
+
+  # Sentinel — disabled until Azure subscription fixed
+  enable_sentinel_integration = false
+
+  common_tags = var.common_tags
+
+  depends_on = [module.log_archive]
+}
