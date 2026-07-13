@@ -129,6 +129,29 @@ output "occ_evidence_security_lake" {
 }
 
 # -----------------------------------------------------------
+# WIZ
+# -----------------------------------------------------------
+output "wiz_scanner_role_arn" {
+  description = "WizScanner role ARN — paste into Wiz console"
+  value       = module.wiz.wiz_scanner_role_arn
+}
+
+output "wiz_status" {
+  description = "Wiz CNAPP configuration summary"
+  value       = module.wiz.wiz_status
+}
+
+output "wiz_connector_instructions" {
+  description = "Steps to connect Wiz console"
+  value       = module.wiz.wiz_connector_setup_instructions
+}
+
+output "occ_evidence_wiz" {
+  description = "OCC evidence from Wiz"
+  value       = module.wiz.occ_evidence_note
+}
+
+# -----------------------------------------------------------
 # VERIFICATION COMMANDS
 # Run these after apply to confirm correct state
 # -----------------------------------------------------------
@@ -154,8 +177,8 @@ output "phase_2_status" {
     config        = "NOT STARTED — module reverted, see modules/config"
     security_hub  = "COMPLETE — ${module.security_hub.security_hub_arn}"
     detective     = "COMPLETE — ${module.detective.graph_arn}"
-    security_lake = "COMPLETE — ${module.security_lake.data_lake_arn}"
-    wiz           = "NOT STARTED"
+    security_lake = "DISABLED — data lake creation fails (FAILED status, root cause unknown), see modules/security-lake, fix planned for cleanup PR"
+    wiz           = "COMPLETE — ${module.wiz.wiz_scanner_role_arn}"
     sentinel      = "PENDING — Azure subscription required"
   }
 }

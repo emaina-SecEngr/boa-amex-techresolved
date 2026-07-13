@@ -275,3 +275,52 @@ module "security_lake" {
 
   depends_on = [module.log_archive, module.guardduty, module.security_hub]
 }
+
+# ============================================================
+# MODULE CALL — wiz
+# Phase 2, Module 6 — CNAPP agentless scanning
+#
+# TRIAL: Contact sales@wiz.io for 30-day free trial
+# Once trial active:
+#   1. Get wiz_aws_account_id from Wiz connector setup
+#   2. Get wiz_external_id from Wiz connector setup
+#   3. Update terraform.tfvars with values
+#   4. terraform apply
+#   5. Paste WizScanner role ARN into Wiz console
+# ============================================================
+module "wiz" {
+  source = "../../modules/wiz"
+
+  aws_region                  = var.aws_region
+  project_prefix              = var.project_prefix
+  security_tooling_account_id = var.security_tooling_account_id
+  organization_id             = var.organization_id
+
+  # Wiz connector — values from Wiz onboarding
+  wiz_aws_account_id = "197857026523"
+  wiz_external_id    = "WIZ-BOA-AMEX-SCANNER"
+  wiz_tenant_id      = ""
+  enable_wiz_scanner = true
+
+  # Scanning capabilities
+  enable_cspm_scanning       = true
+  enable_cwpp_scanning       = true
+  enable_ciem_scanning       = true
+  enable_data_scanning       = true
+  enable_kubernetes_scanning = false
+
+  # KMS grants for encrypted volume scanning
+  enable_kms_grants       = true
+  log_archive_kms_key_arn = module.log_archive.log_archive_kms_key_arn
+
+  # Findings integration
+  enable_findings_integration = false
+  findings_webhook_secret     = ""
+
+  security_alert_email = var.security_alert_email
+  common_tags          = var.common_tags
+
+  depends_on = [
+    module.log_archive
+  ]
+}
