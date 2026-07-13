@@ -24,12 +24,12 @@ terraform {
   }
 
   backend "s3" {
-    bucket         = "abuhari-terraform-state-682391277575"
-    key            = "boa-amex/management/terraform.tfstate"
-    region         = "us-east-1"
-    encrypt        = true
-    dynamodb_table = "abuhari-terraform-state-lock"
-    profile        = "default"
+    bucket       = "abuhari-terraform-state-682391277575"
+    key          = "boa-amex/management/terraform.tfstate"
+    region       = "us-east-1"
+    encrypt      = true
+    use_lockfile = true
+    profile      = "default"
   }
 }
 
@@ -161,8 +161,8 @@ module "aws_organization" {
 
   # Delegated administrator — enable after Phase 2 is deployed
   # Security Tooling must have GuardDuty/SecHub running first
-  enable_guardduty_delegated_admin   = false
-  enable_securityhub_delegated_admin = false
+  enable_guardduty_delegated_admin   = true
+  enable_securityhub_delegated_admin = true
   enable_detective_delegated_admin   = false
   enable_config_delegated_admin      = false
 

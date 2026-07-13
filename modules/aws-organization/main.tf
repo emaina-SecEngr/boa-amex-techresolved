@@ -334,6 +334,20 @@ resource "aws_organizations_delegated_administrator" "securityhub" {
   depends_on = [aws_organizations_organization.main]
 }
 
+# Security Hub, unlike GuardDuty, does not recognize an account as its
+# organization admin just from the generic Organizations delegated-admin
+# registration above. It requires its own EnableOrganizationAdminAccount
+# call — without this, aws_securityhub_organization_configuration in the
+# security-hub module fails with "InvalidAccessException: Account ... is
+# not an administrator for this organization" even though
+# list-delegated-administrators shows it as ACTIVE.
+resource "aws_securityhub_organization_admin_account" "main" {
+  count            = var.enable_securityhub_delegated_admin ? 1 : 0
+  admin_account_id = var.security_tooling_account_id
+
+  depends_on = [aws_organizations_delegated_administrator.securityhub]
+}
+
 resource "aws_organizations_delegated_administrator" "detective" {
   count             = var.enable_detective_delegated_admin ? 1 : 0
   account_id        = var.security_tooling_account_id

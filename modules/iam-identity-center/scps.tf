@@ -301,8 +301,7 @@ resource "aws_organizations_policy" "deny_disabling_security" {
           "guardduty:DeleteDetector",
           "guardduty:DisassociateFromMasterAccount",
           "guardduty:DisassociateMembers",
-          "guardduty:StopMonitoringMembers",
-          "guardduty:UpdateDetector"
+          "guardduty:StopMonitoringMembers"
         ]
         Resource = "*"
       },
