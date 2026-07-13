@@ -10,10 +10,12 @@
 #   - GuardDuty findings (threat intelligence)
 #
 # EXISTING RESOURCE:
-# Graph fae265881c8e48fa81b6af5d7a2f62b4 already running.
+# Graph 97cadf0d24b147f0bfd76cfac41ea1a1 already running (this replaced
+# the original fae265881c8e48fa81b6af5d7a2f62b4 graph — Detective allows
+# only one graph per account/region, and that one no longer exists).
 # Import before apply:
 #   terraform import module.detective.aws_detective_graph.main \
-#     arn:aws:detective:us-east-1:368351959735:graph:fae265881c8e48fa81b6af5d7a2f62b4
+#     arn:aws:detective:us-east-1:368351959735:graph:97cadf0d24b147f0bfd76cfac41ea1a1
 #
 # COST: ~$3/month (free trial expired July 31)
 # ============================================================
@@ -51,7 +53,7 @@ variable "audit_account_id" {
 variable "existing_graph_arn" {
   description = "Existing Detective graph ARN. Import before apply."
   type        = string
-  default     = "arn:aws:detective:us-east-1:368351959735:graph:fae265881c8e48fa81b6af5d7a2f62b4"
+  default     = "arn:aws:detective:us-east-1:368351959735:graph:97cadf0d24b147f0bfd76cfac41ea1a1"
 }
 
 variable "enable_detective" {

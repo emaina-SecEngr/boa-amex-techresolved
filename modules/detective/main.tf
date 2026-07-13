@@ -6,7 +6,7 @@
 # PREREQUISITE: guardduty module complete
 # IMPORT REQUIRED:
 #   terraform import module.detective.aws_detective_graph.main \
-#     arn:aws:detective:us-east-1:368351959735:graph:fae265881c8e48fa81b6af5d7a2f62b4
+#     arn:aws:detective:us-east-1:368351959735:graph:97cadf0d24b147f0bfd76cfac41ea1a1
 # ============================================================
 
 data "aws_caller_identity" "current" {}

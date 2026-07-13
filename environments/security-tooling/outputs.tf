@@ -101,6 +101,34 @@ output "occ_evidence_detective" {
 }
 
 # -----------------------------------------------------------
+# SECURITY LAKE
+# -----------------------------------------------------------
+output "security_lake_arn" {
+  description = "Security Lake data lake ARN"
+  value       = module.security_lake.data_lake_arn
+}
+
+output "security_lake_s3_bucket" {
+  description = "Security Lake S3 bucket ARN — Sentinel reads OCSF data from here"
+  value       = module.security_lake.data_lake_s3_bucket_arn
+}
+
+output "security_lake_status" {
+  description = "Security Lake configuration summary"
+  value       = module.security_lake.security_lake_status
+}
+
+output "sentinel_connection_instructions" {
+  description = "Steps to connect Sentinel when Azure is restored"
+  value       = module.security_lake.sentinel_connection_instructions
+}
+
+output "occ_evidence_security_lake" {
+  description = "OCC evidence from Security Lake"
+  value       = module.security_lake.occ_evidence_note
+}
+
+# -----------------------------------------------------------
 # VERIFICATION COMMANDS
 # Run these after apply to confirm correct state
 # -----------------------------------------------------------
@@ -126,7 +154,7 @@ output "phase_2_status" {
     config        = "NOT STARTED — module reverted, see modules/config"
     security_hub  = "COMPLETE — ${module.security_hub.security_hub_arn}"
     detective     = "COMPLETE — ${module.detective.graph_arn}"
-    security_lake = "NOT STARTED"
+    security_lake = "COMPLETE — ${module.security_lake.data_lake_arn}"
     wiz           = "NOT STARTED"
     sentinel      = "PENDING — Azure subscription required"
   }

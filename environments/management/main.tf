@@ -24,12 +24,12 @@ terraform {
   }
 
   backend "s3" {
-    bucket         = "abuhari-terraform-state-682391277575"
-    key            = "boa-amex/management/terraform.tfstate"
-    region         = "us-east-1"
-    encrypt        = true
-    dynamodb_table = "abuhari-terraform-state-lock"
-    profile        = "default"
+    bucket       = "abuhari-terraform-state-682391277575"
+    key          = "boa-amex/management/terraform.tfstate"
+    region       = "us-east-1"
+    encrypt      = true
+    use_lockfile = true
+    profile      = "default"
   }
 }
 

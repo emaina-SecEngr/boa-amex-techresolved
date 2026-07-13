@@ -20,12 +20,12 @@ terraform {
   }
 
   backend "s3" {
-    bucket         = "abuhari-terraform-state-368351959735"
-    key            = "boa-amex/security-tooling/terraform.tfstate"
-    region         = "us-east-1"
-    encrypt        = true
-    dynamodb_table = "abuhari-terraform-state-lock"
-    profile        = "security-tooling"
+    bucket       = "abuhari-terraform-state-368351959735"
+    key          = "boa-amex/security-tooling/terraform.tfstate"
+    region       = "us-east-1"
+    encrypt      = true
+    use_lockfile = true
+    profile      = "security-tooling"
   }
 }
 
@@ -207,7 +207,7 @@ module "security_hub" {
 #
 # IMPORT REQUIRED before first apply:
 #   terraform import module.detective.aws_detective_graph.main \
-#     arn:aws:detective:us-east-1:368351959735:graph:fae265881c8e48fa81b6af5d7a2f62b4
+#     arn:aws:detective:us-east-1:368351959735:graph:97cadf0d24b147f0bfd76cfac41ea1a1
 # ============================================================
 module "detective" {
   source = "../../modules/detective"
@@ -218,7 +218,7 @@ module "detective" {
   organization_id             = var.organization_id
   audit_account_id            = var.audit_account_id
 
-  existing_graph_arn = "arn:aws:detective:us-east-1:368351959735:graph:fae265881c8e48fa81b6af5d7a2f62b4"
+  existing_graph_arn = "arn:aws:detective:us-east-1:368351959735:graph:97cadf0d24b147f0bfd76cfac41ea1a1"
   enable_detective   = true
 
   member_accounts = ["445459853572"]
@@ -231,4 +231,47 @@ module "detective" {
   common_tags            = var.common_tags
 
   depends_on = [module.guardduty]
+}
+
+# ============================================================
+# MODULE CALL — security_lake
+# Phase 2, Module 5 — OCSF normalization layer for Sentinel
+#
+# PREREQUISITE: log-archive, guardduty, security_hub complete
+# No import required — fresh resource, not pre-existing.
+# ============================================================
+module "security_lake" {
+  source = "../../modules/security-lake"
+
+  aws_region                  = var.aws_region
+  project_prefix              = var.project_prefix
+  security_tooling_account_id = var.security_tooling_account_id
+  management_account_id       = var.management_account_id
+  organization_id             = var.organization_id
+
+  # Security Lake configuration
+  enable_security_lake          = false
+  security_lake_retention_days  = 365
+  security_lake_transition_days = 90
+
+  # Log sources
+  enable_cloudtrail_source    = true
+  enable_vpc_flow_logs_source = true
+  enable_security_hub_source  = true
+  enable_route53_source       = true
+  enable_lambda_source        = false
+
+  # Org-wide sources — folds member_accounts into every log source
+  enable_org_sources = true
+  member_accounts    = ["445459853572"]
+
+  # Sentinel — disabled until Azure subscription fixed
+  enable_sentinel_integration = false
+  sentinel_external_id        = ""
+
+  log_archive_kms_key_arn = module.log_archive.log_archive_kms_key_arn
+  security_alert_email    = var.security_alert_email
+  common_tags             = var.common_tags
+
+  depends_on = [module.log_archive, module.guardduty, module.security_hub]
 }
