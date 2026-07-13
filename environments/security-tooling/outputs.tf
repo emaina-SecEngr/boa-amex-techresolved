@@ -83,6 +83,24 @@ output "occ_evidence_security_hub" {
 }
 
 # -----------------------------------------------------------
+# DETECTIVE
+# -----------------------------------------------------------
+output "detective_graph_arn" {
+  description = "Detective behavior graph ARN"
+  value       = module.detective.graph_arn
+}
+
+output "detective_status" {
+  description = "Detective configuration summary"
+  value       = module.detective.detective_status
+}
+
+output "occ_evidence_detective" {
+  description = "OCC evidence from Detective"
+  value       = module.detective.occ_evidence_note
+}
+
+# -----------------------------------------------------------
 # VERIFICATION COMMANDS
 # Run these after apply to confirm correct state
 # -----------------------------------------------------------
@@ -107,7 +125,7 @@ output "phase_2_status" {
     guardduty     = "COMPLETE — detector ${module.guardduty.detector_id}"
     config        = "NOT STARTED — module reverted, see modules/config"
     security_hub  = "COMPLETE — ${module.security_hub.security_hub_arn}"
-    detective     = "NOT STARTED"
+    detective     = "COMPLETE — ${module.detective.graph_arn}"
     security_lake = "NOT STARTED"
     wiz           = "NOT STARTED"
     sentinel      = "PENDING — Azure subscription required"

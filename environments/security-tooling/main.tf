@@ -200,3 +200,35 @@ module "security_hub" {
 
   depends_on = [module.log_archive, module.guardduty]
 }
+
+# ============================================================
+# MODULE CALL — detective
+# Phase 2, Module 4 — behavior graph for investigation
+#
+# IMPORT REQUIRED before first apply:
+#   terraform import module.detective.aws_detective_graph.main \
+#     arn:aws:detective:us-east-1:368351959735:graph:fae265881c8e48fa81b6af5d7a2f62b4
+# ============================================================
+module "detective" {
+  source = "../../modules/detective"
+
+  aws_region                  = var.aws_region
+  project_prefix              = var.project_prefix
+  security_tooling_account_id = var.security_tooling_account_id
+  organization_id             = var.organization_id
+  audit_account_id            = var.audit_account_id
+
+  existing_graph_arn = "arn:aws:detective:us-east-1:368351959735:graph:fae265881c8e48fa81b6af5d7a2f62b4"
+  enable_detective   = true
+
+  member_accounts = ["445459853572"]
+  member_emails = {
+    "445459853572" = "mwangi.maina83+audit@gmail.com"
+  }
+
+  enable_org_datasources = true
+  security_alert_email   = var.security_alert_email
+  common_tags            = var.common_tags
+
+  depends_on = [module.guardduty]
+}
