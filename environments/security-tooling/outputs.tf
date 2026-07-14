@@ -152,6 +152,24 @@ output "occ_evidence_wiz" {
 }
 
 # -----------------------------------------------------------
+# CROWDSTRIKE
+# -----------------------------------------------------------
+output "crowdstrike_status" {
+  description = "CrowdStrike Falcon configuration summary"
+  value       = module.crowdstrike.crowdstrike_status
+}
+
+output "crowdstrike_connector_instructions" {
+  description = "Steps to activate CrowdStrike integration"
+  value       = module.crowdstrike.crowdstrike_connector_setup_instructions
+}
+
+output "occ_evidence_crowdstrike" {
+  description = "OCC evidence from CrowdStrike"
+  value       = module.crowdstrike.occ_evidence_note
+}
+
+# -----------------------------------------------------------
 # VERIFICATION COMMANDS
 # Run these after apply to confirm correct state
 # -----------------------------------------------------------

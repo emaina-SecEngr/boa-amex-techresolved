@@ -324,3 +324,61 @@ module "wiz" {
     module.log_archive
   ]
 }
+
+# ============================================================
+# MODULE CALL — crowdstrike
+# Phase 3, Module 1 — endpoint detection and response
+#
+# TOGGLE: enable_crowdstrike = false
+# Enable when CrowdStrike trial/subscription active
+# Get CID from: Falcon console → Host Setup → Sensor Downloads
+# ============================================================
+module "crowdstrike" {
+  source = "../../modules/crowdstrike"
+
+  aws_region                  = var.aws_region
+  project_prefix              = var.project_prefix
+  security_tooling_account_id = var.security_tooling_account_id
+  organization_id             = var.organization_id
+
+  log_archive_kms_key_arn = module.log_archive.log_archive_kms_key_arn
+
+  # Master toggle — false until trial active
+  enable_crowdstrike = false
+
+  # CrowdStrike account config — from onboarding
+  crowdstrike_cid            = ""
+  crowdstrike_aws_account_id = "292230061137"
+  crowdstrike_external_id    = ""
+
+  # Sensor deployment
+  enable_sensor_deployment = true
+  sensor_version           = "Latest"
+  sensor_target_platform   = "Linux"
+  ssm_association_schedule = "cron(0 2 * * ? *)"
+
+  # Falcon Horizon CSPM
+  enable_falcon_horizon = true
+
+  # FDR telemetry streaming
+  enable_fdr         = true
+  fdr_bucket_name    = "boa-amex-crowdstrike-fdr-368351959735"
+  fdr_retention_days = 90
+
+  # Detection modules
+  enable_edr                 = true
+  enable_identity_protection = true
+  enable_container_security  = false
+
+  # Alerting
+  critical_detection_threshold = 4
+  security_alert_email         = var.security_alert_email
+  security_alert_topic_arn     = ""
+
+  # Sentinel — disabled until Azure subscription fixed
+  enable_sentinel_integration = false
+
+  common_tags = var.common_tags
+
+  depends_on = [module.log_archive]
+}
