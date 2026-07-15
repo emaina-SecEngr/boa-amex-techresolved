@@ -382,3 +382,63 @@ module "crowdstrike" {
 
   depends_on = [module.log_archive]
 }
+
+# ============================================================
+# MODULE CALL — palo-alto
+# Phase 3, Module 2 — network inspection (Palo Alto + AWS NFW)
+#
+# ALL TOGGLES OFF BY DEFAULT:
+#   enable_palo_alto = false ($1,440+/month)
+#   enable_aws_network_firewall = false ($285/month)
+#   enable_transit_gateway = false ($36/month)
+# ============================================================
+module "palo_alto" {
+  source = "../../modules/palo-alto"
+
+  aws_region                  = var.aws_region
+  project_prefix              = var.project_prefix
+  security_tooling_account_id = var.security_tooling_account_id
+  organization_id             = var.organization_id
+
+  # All toggled off — enable for demos
+  enable_palo_alto            = false
+  enable_aws_network_firewall = false
+  enable_transit_gateway      = false
+
+  # Security VPC config (ready when toggled on)
+  security_vpc_cidr       = "10.0.0.0/16"
+  inspection_subnet_cidrs = ["10.0.1.0/24", "10.0.2.0/24"]
+  management_subnet_cidrs = ["10.0.3.0/24", "10.0.4.0/24"]
+  availability_zones      = ["us-east-1a", "us-east-1b"]
+
+  # Palo Alto config (when enabled)
+  palo_alto_ami_id         = ""
+  palo_alto_instance_type  = "m5.xlarge"
+  palo_alto_instance_count = 2
+  panorama_server          = ""
+  panorama_device_group    = "BOA-AMEX-AWS"
+
+  # Network Firewall config (when enabled)
+  enable_suricata_rules = true
+  blocked_domains = [
+    "*.tor2web.com",
+    "*.onion.to",
+    "pastebin.com",
+    "*.duckdns.org",
+    "*.no-ip.com"
+  ]
+
+  # Logging
+  log_archive_bucket_name = module.log_archive.log_archive_bucket_name
+  log_archive_kms_key_arn = module.log_archive.log_archive_kms_key_arn
+  enable_flow_logs        = true
+  enable_firewall_logs    = true
+
+  # Sentinel
+  enable_sentinel_integration = false
+
+  security_alert_email = var.security_alert_email
+  common_tags          = var.common_tags
+
+  depends_on = [module.log_archive]
+}

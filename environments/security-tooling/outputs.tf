@@ -170,6 +170,24 @@ output "occ_evidence_crowdstrike" {
 }
 
 # -----------------------------------------------------------
+# PALO ALTO / NETWORK SECURITY
+# -----------------------------------------------------------
+output "network_status" {
+  description = "Network security configuration summary"
+  value       = module.palo_alto.network_status
+}
+
+output "network_activation_instructions" {
+  description = "How to activate network security components"
+  value       = module.palo_alto.activation_instructions
+}
+
+output "occ_evidence_network" {
+  description = "OCC evidence from network security"
+  value       = module.palo_alto.occ_evidence_note
+}
+
+# -----------------------------------------------------------
 # VERIFICATION COMMANDS
 # Run these after apply to confirm correct state
 # -----------------------------------------------------------
