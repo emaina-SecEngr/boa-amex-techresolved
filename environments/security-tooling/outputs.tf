@@ -206,6 +206,29 @@ output "occ_evidence_sentinel" {
 }
 
 # -----------------------------------------------------------
+# SOAR
+# -----------------------------------------------------------
+output "soar_dispatcher_arn" {
+  description = "SOAR dispatcher Lambda ARN"
+  value       = module.soar.soar_dispatcher_arn
+}
+
+output "soar_status" {
+  description = "SOAR configuration summary"
+  value       = module.soar.soar_status
+}
+
+output "soar_playbook_catalog" {
+  description = "Complete catalog of 40 SOAR playbooks"
+  value       = module.soar.playbook_catalog
+}
+
+output "occ_evidence_soar" {
+  description = "OCC evidence from SOAR"
+  value       = module.soar.occ_evidence_note
+}
+
+# -----------------------------------------------------------
 # VERIFICATION COMMANDS
 # Run these after apply to confirm correct state
 # -----------------------------------------------------------
@@ -235,5 +258,6 @@ output "phase_status" {
     crowdstrike   = "COMPLETE - toggled off (enable_crowdstrike=false)"
     palo_alto     = "COMPLETE - toggled off (enable_palo_alto=false)"
     sentinel      = "COMPLETE - toggled off (enable_sentinel=false)"
+    soar          = "COMPLETE - ${module.soar.soar_dispatcher_arn}"
   }
 }

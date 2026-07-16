@@ -484,3 +484,60 @@ module "sentinel" {
 
   depends_on = [module.log_archive]
 }
+
+# ============================================================
+# MODULE CALL — soar
+# Phase 4 — automated incident response (40 playbooks)
+#
+# 8 EventBridge rules route findings to Lambda dispatcher
+# Lambda routes to correct playbook based on finding type
+# ============================================================
+module "soar" {
+  source = "../../modules/soar"
+
+  aws_region                  = var.aws_region
+  project_prefix              = var.project_prefix
+  security_tooling_account_id = var.security_tooling_account_id
+  management_account_id       = var.management_account_id
+  organization_id             = var.organization_id
+  audit_account_id            = var.audit_account_id
+
+  # Master toggle
+  enable_soar = true
+
+  # Playbook categories
+  enable_infrastructure_playbooks    = true
+  enable_iam_playbooks               = true
+  enable_token_playbooks             = true
+  enable_container_playbooks         = false
+  enable_network_playbooks           = true
+  enable_runtime_playbooks           = true
+  enable_vulnerability_playbooks     = true
+  enable_data_exfiltration_playbooks = true
+
+  # Response mode
+  response_mode            = "AUTO"
+  approval_timeout_minutes = 15
+
+  # References from other modules
+  log_archive_bucket_name = module.log_archive.log_archive_bucket_name
+  log_archive_kms_key_arn = module.log_archive.log_archive_kms_key_arn
+  guardduty_detector_id   = module.guardduty.detector_id
+  security_hub_arn        = module.security_hub.security_hub_arn
+
+  # Quarantine and forensics — empty for now
+  quarantine_vpc_id     = ""
+  forensics_bucket_name = ""
+
+  # Alerting
+  security_alert_email    = var.security_alert_email
+  critical_alert_email    = var.security_alert_email
+  existing_alert_topic_arn = ""
+
+  # Sentinel
+  enable_sentinel_integration = false
+
+  common_tags = var.common_tags
+
+  depends_on = [module.guardduty, module.security_hub]
+}
