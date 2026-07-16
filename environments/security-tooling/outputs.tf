@@ -152,6 +152,60 @@ output "occ_evidence_wiz" {
 }
 
 # -----------------------------------------------------------
+# CROWDSTRIKE
+# -----------------------------------------------------------
+output "crowdstrike_status" {
+  description = "CrowdStrike Falcon configuration summary"
+  value       = module.crowdstrike.crowdstrike_status
+}
+
+output "crowdstrike_connector_instructions" {
+  description = "Steps to activate CrowdStrike integration"
+  value       = module.crowdstrike.crowdstrike_connector_setup_instructions
+}
+
+output "occ_evidence_crowdstrike" {
+  description = "OCC evidence from CrowdStrike"
+  value       = module.crowdstrike.occ_evidence_note
+}
+
+# -----------------------------------------------------------
+# PALO ALTO / NETWORK SECURITY
+# -----------------------------------------------------------
+output "network_status" {
+  description = "Network security configuration summary"
+  value       = module.palo_alto.network_status
+}
+
+output "network_activation_instructions" {
+  description = "How to activate network security components"
+  value       = module.palo_alto.activation_instructions
+}
+
+output "occ_evidence_network" {
+  description = "OCC evidence from network security"
+  value       = module.palo_alto.occ_evidence_note
+}
+
+# -----------------------------------------------------------
+# SENTINEL
+# -----------------------------------------------------------
+output "sentinel_status" {
+  description = "Sentinel connector status"
+  value       = module.sentinel.sentinel_status
+}
+
+output "sentinel_activation_instructions" {
+  description = "Steps to activate Sentinel when Azure is restored"
+  value       = module.sentinel.sentinel_activation_instructions
+}
+
+output "occ_evidence_sentinel" {
+  description = "OCC evidence from Sentinel"
+  value       = module.sentinel.occ_evidence_note
+}
+
+# -----------------------------------------------------------
 # VERIFICATION COMMANDS
 # Run these after apply to confirm correct state
 # -----------------------------------------------------------
@@ -169,16 +223,17 @@ output "verify_commands" {
 # PHASE 2 BUILD STATUS
 # Updated as each module is added
 # -----------------------------------------------------------
-output "phase_2_status" {
-  description = "Phase 2 Security Tooling build status"
+output "phase_status" {
+  description = "Complete build status across all phases"
   value = {
-    log_archive   = "COMPLETE — ${module.log_archive.log_archive_bucket_name}"
-    guardduty     = "COMPLETE — detector ${module.guardduty.detector_id}"
-    config        = "NOT STARTED — module reverted, see modules/config"
-    security_hub  = "COMPLETE — ${module.security_hub.security_hub_arn}"
-    detective     = "COMPLETE — ${module.detective.graph_arn}"
-    security_lake = "DISABLED — data lake creation fails (FAILED status, root cause unknown), see modules/security-lake, fix planned for cleanup PR"
-    wiz           = "COMPLETE — ${module.wiz.wiz_scanner_role_arn}"
-    sentinel      = "PENDING — Azure subscription required"
+    log_archive   = "COMPLETE - ${module.log_archive.log_archive_bucket_name}"
+    guardduty     = "COMPLETE - detector ${module.guardduty.detector_id}"
+    security_hub  = "COMPLETE - ${module.security_hub.security_hub_arn}"
+    detective     = "COMPLETE - ${module.detective.graph_arn}"
+    security_lake = "BUILT - pending AWS fix"
+    wiz           = "COMPLETE - ${module.wiz.wiz_scanner_role_arn}"
+    crowdstrike   = "COMPLETE - toggled off (enable_crowdstrike=false)"
+    palo_alto     = "COMPLETE - toggled off (enable_palo_alto=false)"
+    sentinel      = "COMPLETE - toggled off (enable_sentinel=false)"
   }
 }

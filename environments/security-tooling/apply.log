@@ -1,0 +1,491 @@
+[0m[1mmodule.log_archive.data.aws_caller_identity.current: Reading...[0m[0m
+[0m[1mmodule.log_archive.data.aws_region.current: Reading...[0m[0m
+[0m[1mmodule.log_archive.aws_sns_topic.log_archive_alerts: Refreshing state... [id=arn:aws:sns:us-east-1:368351959735:boa-amex-log-archive-alerts][0m
+[0m[1mmodule.log_archive.data.aws_region.current: Read complete after 0s [id=us-east-1][0m
+[0m[1mmodule.log_archive.aws_s3_bucket.log_archive_access_logs: Refreshing state... [id=boa-amex-log-archive-368351959735-access-logs][0m
+[0m[1mmodule.log_archive.aws_s3_bucket.log_archive: Refreshing state... [id=boa-amex-log-archive-368351959735][0m
+[0m[1mmodule.log_archive.data.aws_caller_identity.current: Read complete after 0s [id=368351959735][0m
+[0m[1mmodule.log_archive.aws_kms_key.log_archive: Refreshing state... [id=c0bb555a-2316-474a-b49a-fc6e40e47912][0m
+[0m[1mmodule.log_archive.aws_sns_topic_subscription.log_archive_alert_email: Refreshing state... [id=arn:aws:sns:us-east-1:368351959735:boa-amex-log-archive-alerts:42eb4b9a-810c-4f12-9209-cf4d28c098ac][0m
+[0m[1mmodule.log_archive.aws_kms_alias.log_archive: Refreshing state... [id=alias/boa-amex-log-archive][0m
+[0m[1mmodule.log_archive.aws_s3_bucket_public_access_block.log_archive: Refreshing state... [id=boa-amex-log-archive-368351959735][0m
+[0m[1mmodule.log_archive.aws_s3_bucket_server_side_encryption_configuration.log_archive: Refreshing state... [id=boa-amex-log-archive-368351959735][0m
+[0m[1mmodule.log_archive.aws_s3_bucket_versioning.log_archive: Refreshing state... [id=boa-amex-log-archive-368351959735][0m
+[0m[1mmodule.log_archive.aws_cloudwatch_metric_alarm.unauthorized_log_access: Refreshing state... [id=boa-amex-unauthorized-log-archive-access][0m
+[0m[1mmodule.log_archive.aws_s3_bucket_lifecycle_configuration.log_archive: Refreshing state... [id=boa-amex-log-archive-368351959735][0m
+[0m[1mmodule.log_archive.aws_s3_bucket_public_access_block.access_logs: Refreshing state... [id=boa-amex-log-archive-368351959735-access-logs][0m
+[0m[1mmodule.log_archive.aws_s3_bucket_logging.log_archive: Refreshing state... [id=boa-amex-log-archive-368351959735][0m
+[0m[1mmodule.log_archive.aws_s3_bucket_server_side_encryption_configuration.access_logs: Refreshing state... [id=boa-amex-log-archive-368351959735-access-logs][0m
+[0m[1mmodule.log_archive.aws_s3_bucket_policy.log_archive: Refreshing state... [id=boa-amex-log-archive-368351959735][0m
+[0m[1mmodule.log_archive.aws_s3_bucket_object_lock_configuration.log_archive[0]: Refreshing state... [id=boa-amex-log-archive-368351959735][0m
+[0m[1mmodule.wiz.aws_iam_role.wiz_scanner[0]: Refreshing state... [id=WizScanner][0m
+[0m[1mmodule.guardduty.aws_sns_topic.guardduty_alerts[0]: Refreshing state... [id=arn:aws:sns:us-east-1:368351959735:boa-amex-guardduty-alerts][0m
+[0m[1mmodule.guardduty.aws_guardduty_detector.main: Refreshing state... [id=b6cf6963ce4553017b19d5bb98e6b209][0m
+[0m[1mmodule.wiz.aws_cloudwatch_event_rule.wiz_critical[0]: Refreshing state... [id=boa-amex-wiz-critical-finding][0m
+[0m[1mmodule.wiz.aws_sns_topic.wiz_findings[0]: Refreshing state... [id=arn:aws:sns:us-east-1:368351959735:boa-amex-wiz-findings][0m
+[0m[1mmodule.guardduty.aws_cloudwatch_event_rule.guardduty_high_severity: Refreshing state... [id=boa-amex-guardduty-high-severity][0m
+[0m[1mmodule.wiz.aws_sns_topic_subscription.wiz_findings_email[0]: Refreshing state... [id=arn:aws:sns:us-east-1:368351959735:boa-amex-wiz-findings:44d4b8ef-8563-4d4c-b819-b872a326f8d4][0m
+[0m[1mmodule.guardduty.aws_sns_topic_policy.guardduty_alerts[0]: Refreshing state... [id=arn:aws:sns:us-east-1:368351959735:boa-amex-guardduty-alerts][0m
+[0m[1mmodule.guardduty.aws_sns_topic_subscription.guardduty_alert_email[0]: Refreshing state... [id=arn:aws:sns:us-east-1:368351959735:boa-amex-guardduty-alerts:169cff30-a50f-4c8f-8437-9c4d53c637a7][0m
+[0m[1mmodule.guardduty.aws_cloudwatch_metric_alarm.guardduty_findings_spike: Refreshing state... [id=boa-amex-guardduty-findings-spike][0m
+[0m[1mmodule.guardduty.aws_guardduty_publishing_destination.s3[0]: Refreshing state... [id=b6cf6963ce4553017b19d5bb98e6b209:a4cfac4c7fbe2a0ed5f34ff7de58dbc3][0m
+[0m[1mmodule.guardduty.aws_guardduty_detector_feature.lambda_network_logs[0]: Refreshing state... [id=b6cf6963ce4553017b19d5bb98e6b209/LAMBDA_NETWORK_LOGS][0m
+[0m[1mmodule.guardduty.aws_guardduty_detector_feature.rds_login_events[0]: Refreshing state... [id=b6cf6963ce4553017b19d5bb98e6b209/RDS_LOGIN_EVENTS][0m
+[0m[1mmodule.guardduty.aws_cloudwatch_event_target.guardduty_sns: Refreshing state... [id=boa-amex-guardduty-high-severity-GuardDutySNS][0m
+[0m[1mmodule.wiz.aws_cloudwatch_event_target.wiz_sns[0]: Refreshing state... [id=boa-amex-wiz-critical-finding-WizSNS][0m
+[0m[1mmodule.security_hub.aws_securityhub_account.main: Refreshing state... [id=368351959735][0m
+[0m[1mmodule.detective.aws_detective_graph.main: Refreshing state... [id=arn:aws:detective:us-east-1:368351959735:graph:97cadf0d24b147f0bfd76cfac41ea1a1][0m
+[0m[1mmodule.security_hub.aws_cloudwatch_event_rule.security_hub_critical: Refreshing state... [id=boa-amex-security-hub-critical][0m
+[0m[1mmodule.detective.aws_cloudwatch_metric_alarm.detective_volume_spike: Refreshing state... [id=boa-amex-detective-volume-spike][0m
+[0m[1mmodule.security_hub.aws_sns_topic.security_hub_alerts: Refreshing state... [id=arn:aws:sns:us-east-1:368351959735:boa-amex-security-hub-alerts][0m
+[0m[1mmodule.wiz.aws_kms_grant.wiz_scanner[0]: Refreshing state... [id=arn:aws:kms:us-east-1:368351959735:key/c0bb555a-2316-474a-b49a-fc6e40e47912:97d40ca7761af82a71dc2bd965b7a03c877ca5987a7bdeea8b72a72f1121571c][0m
+[0m[1mmodule.wiz.aws_iam_role_policy_attachment.wiz_security_audit[0]: Refreshing state... [id=WizScanner-20260713052555301300000001][0m
+[0m[1mmodule.security_hub.aws_sns_topic_policy.security_hub_alerts: Refreshing state... [id=arn:aws:sns:us-east-1:368351959735:boa-amex-security-hub-alerts][0m
+[0m[1mmodule.wiz.aws_iam_role_policy_attachment.wiz_readonly[0]: Refreshing state... [id=WizScanner-20260713052555525200000002][0m
+[0m[1mmodule.wiz.aws_iam_role_policy.wiz_ciem[0]: Refreshing state... [id=WizScanner:WizCIEMScanning][0m
+[0m[1mmodule.security_hub.aws_cloudwatch_event_target.security_hub_sns: Refreshing state... [id=boa-amex-security-hub-critical-SecurityHubSNS][0m
+[0m[1mmodule.wiz.aws_iam_role_policy.wiz_cwpp[0]: Refreshing state... [id=WizScanner:WizCWPPScanning][0m
+[0m[1mmodule.wiz.aws_iam_role_policy.wiz_data_scanning[0]: Refreshing state... [id=WizScanner:WizDataScanning][0m
+[0m[1mmodule.security_hub.aws_sns_topic_subscription.security_hub_email: Refreshing state... [id=arn:aws:sns:us-east-1:368351959735:boa-amex-security-hub-alerts:c4f565f8-d86a-4752-84cd-602e0c7be42d][0m
+[0m[1mmodule.security_hub.aws_cloudwatch_metric_alarm.compliance_score_drop: Refreshing state... [id=boa-amex-security-hub-compliance-drop][0m
+[0m[1mmodule.security_hub.aws_securityhub_standards_subscription.pci_dss[0]: Refreshing state... [id=arn:aws:securityhub:us-east-1:368351959735:subscription/pci-dss/v/3.2.1][0m
+[0m[1mmodule.security_hub.aws_securityhub_product_subscription.iam_access_analyzer: Refreshing state... [id=arn:aws:securityhub:us-east-1::product/aws/access-analyzer,arn:aws:securityhub:us-east-1:368351959735:product-subscription/aws/access-analyzer][0m
+[0m[1mmodule.security_hub.aws_securityhub_standards_subscription.aws_foundational[0]: Refreshing state... [id=arn:aws:securityhub:us-east-1:368351959735:subscription/aws-foundational-security-best-practices/v/1.0.0][0m
+[0m[1mmodule.security_hub.aws_securityhub_finding_aggregator.main[0]: Refreshing state... [id=arn:aws:securityhub:us-east-1:368351959735:finding-aggregator/28cfac50-0c62-d01e-a1d5-ab853f6c2ee9][0m
+[0m[1mmodule.security_hub.aws_securityhub_product_subscription.inspector: Refreshing state... [id=arn:aws:securityhub:us-east-1::product/aws/inspector,arn:aws:securityhub:us-east-1:368351959735:product-subscription/aws/inspector][0m
+[0m[1mmodule.security_hub.aws_securityhub_product_subscription.guardduty: Refreshing state... [id=arn:aws:securityhub:us-east-1::product/aws/guardduty,arn:aws:securityhub:us-east-1:368351959735:product-subscription/aws/guardduty][0m
+[0m[1mmodule.security_hub.aws_securityhub_product_subscription.macie: Refreshing state... [id=arn:aws:securityhub:us-east-1::product/aws/macie,arn:aws:securityhub:us-east-1:368351959735:product-subscription/aws/macie][0m
+[0m[1mmodule.security_hub.aws_securityhub_standards_subscription.cis[0]: Refreshing state... [id=arn:aws:securityhub:us-east-1:368351959735:subscription/cis-aws-foundations-benchmark/v/1.4.0][0m
+[0m[1mmodule.detective.aws_detective_member.audit[0]: Refreshing state... [id=arn:aws:detective:us-east-1:368351959735:graph:97cadf0d24b147f0bfd76cfac41ea1a1/445459853572][0m
+[0m[1mmodule.security_hub.aws_securityhub_organization_configuration.main: Refreshing state... [id=368351959735][0m
+[0m[1mmodule.security_lake.aws_iam_role.security_lake_meta: Refreshing state... [id=boa-amex-security-lake-meta-role][0m
+[0m[1mmodule.security_lake.aws_iam_service_linked_role.security_lake: Refreshing state... [id=arn:aws:iam::368351959735:role/aws-service-role/securitylake.amazonaws.com/AWSServiceRoleForSecurityLake][0m
+[0m[1mmodule.security_lake.aws_sns_topic.security_lake_alerts: Refreshing state... [id=arn:aws:sns:us-east-1:368351959735:boa-amex-security-lake-alerts][0m
+[0m[1mmodule.security_lake.aws_sns_topic_subscription.security_lake_alert_email: Refreshing state... [id=arn:aws:sns:us-east-1:368351959735:boa-amex-security-lake-alerts:0c76c912-2c67-4216-b32f-64d00f327729][0m
+[0m[1mmodule.security_lake.aws_cloudwatch_metric_alarm.security_lake_ingestion: Refreshing state... [id=boa-amex-security-lake-ingestion-spike][0m
+[0m[1mmodule.security_lake.aws_iam_role_policy_attachment.security_lake_meta: Refreshing state... [id=boa-amex-security-lake-meta-role-20260713003153806000000001][0m
+
+Terraform used the selected providers to generate the following execution
+plan. Resource actions are indicated with the following symbols:
+  [32m+[0m create[0m
+[31m-[0m/[32m+[0m destroy and then create replacement[0m
+ [36m<=[0m read (data resources)[0m
+
+Terraform will perform the following actions:
+
+[1m  # module.crowdstrike.data.aws_caller_identity.current[0m will be read during apply
+  # (depends on a resource or a module with changes pending)
+[0m [36m<=[0m[0m data "aws_caller_identity" "current" {
+      [32m+[0m[0m account_id = (known after apply)
+      [32m+[0m[0m arn        = (known after apply)
+      [32m+[0m[0m id         = (known after apply)
+      [32m+[0m[0m user_id    = (known after apply)
+    }
+
+[1m  # module.crowdstrike.data.aws_region.current[0m will be read during apply
+  # (depends on a resource or a module with changes pending)
+[0m [36m<=[0m[0m data "aws_region" "current" {
+      [32m+[0m[0m description = (known after apply)
+      [32m+[0m[0m endpoint    = (known after apply)
+      [32m+[0m[0m id          = (known after apply)
+      [32m+[0m[0m name        = (known after apply)
+    }
+
+[1m  # module.detective.data.aws_caller_identity.current[0m will be read during apply
+  # (depends on a resource or a module with changes pending)
+[0m [36m<=[0m[0m data "aws_caller_identity" "current" {
+      [32m+[0m[0m account_id = (known after apply)
+      [32m+[0m[0m arn        = (known after apply)
+      [32m+[0m[0m id         = (known after apply)
+      [32m+[0m[0m user_id    = (known after apply)
+    }
+
+[1m  # module.detective.data.aws_region.current[0m will be read during apply
+  # (depends on a resource or a module with changes pending)
+[0m [36m<=[0m[0m data "aws_region" "current" {
+      [32m+[0m[0m description = (known after apply)
+      [32m+[0m[0m endpoint    = (known after apply)
+      [32m+[0m[0m id          = (known after apply)
+      [32m+[0m[0m name        = (known after apply)
+    }
+
+[1m  # module.guardduty.data.aws_caller_identity.current[0m will be read during apply
+  # (depends on a resource or a module with changes pending)
+[0m [36m<=[0m[0m data "aws_caller_identity" "current" {
+      [32m+[0m[0m account_id = (known after apply)
+      [32m+[0m[0m arn        = (known after apply)
+      [32m+[0m[0m id         = (known after apply)
+      [32m+[0m[0m user_id    = (known after apply)
+    }
+
+[1m  # module.guardduty.data.aws_region.current[0m will be read during apply
+  # (depends on a resource or a module with changes pending)
+[0m [36m<=[0m[0m data "aws_region" "current" {
+      [32m+[0m[0m description = (known after apply)
+      [32m+[0m[0m endpoint    = (known after apply)
+      [32m+[0m[0m id          = (known after apply)
+      [32m+[0m[0m name        = (known after apply)
+    }
+
+[1m  # module.log_archive.aws_sns_topic_subscription.log_archive_alert_email[0m will be created
+[0m  [32m+[0m[0m resource "aws_sns_topic_subscription" "log_archive_alert_email" {
+      [32m+[0m[0m arn                             = (known after apply)
+      [32m+[0m[0m confirmation_timeout_in_minutes = 1
+      [32m+[0m[0m confirmation_was_authenticated  = (known after apply)
+      [32m+[0m[0m endpoint                        = "emaina@arizona.edu"
+      [32m+[0m[0m endpoint_auto_confirms          = false
+      [32m+[0m[0m filter_policy_scope             = (known after apply)
+      [32m+[0m[0m id                              = (known after apply)
+      [32m+[0m[0m owner_id                        = (known after apply)
+      [32m+[0m[0m pending_confirmation            = (known after apply)
+      [32m+[0m[0m protocol                        = "email"
+      [32m+[0m[0m raw_message_delivery            = false
+      [32m+[0m[0m topic_arn                       = "arn:aws:sns:us-east-1:368351959735:boa-amex-log-archive-alerts"
+    }
+
+[1m  # module.security_hub.data.aws_caller_identity.current[0m will be read during apply
+  # (depends on a resource or a module with changes pending)
+[0m [36m<=[0m[0m data "aws_caller_identity" "current" {
+      [32m+[0m[0m account_id = (known after apply)
+      [32m+[0m[0m arn        = (known after apply)
+      [32m+[0m[0m id         = (known after apply)
+      [32m+[0m[0m user_id    = (known after apply)
+    }
+
+[1m  # module.security_hub.data.aws_region.current[0m will be read during apply
+  # (depends on a resource or a module with changes pending)
+[0m [36m<=[0m[0m data "aws_region" "current" {
+      [32m+[0m[0m description = (known after apply)
+      [32m+[0m[0m endpoint    = (known after apply)
+      [32m+[0m[0m id          = (known after apply)
+      [32m+[0m[0m name        = (known after apply)
+    }
+
+[1m  # module.security_hub.aws_securityhub_product_subscription.guardduty[0m must be [1m[31mreplaced[0m
+[0m[31m-[0m/[32m+[0m[0m resource "aws_securityhub_product_subscription" "guardduty" {
+      [33m~[0m[0m arn         = "arn:aws:securityhub:us-east-1:368351959735:product-subscription/aws/guardduty" -> (known after apply)
+      [33m~[0m[0m id          = "arn:aws:securityhub:us-east-1::product/aws/guardduty,arn:aws:securityhub:us-east-1:368351959735:product-subscription/aws/guardduty" -> (known after apply)
+      [33m~[0m[0m product_arn = "arn:aws:securityhub:us-east-1::product/aws/guardduty" -> (known after apply) [31m# forces replacement[0m[0m
+    }
+
+[1m  # module.security_hub.aws_securityhub_product_subscription.iam_access_analyzer[0m must be [1m[31mreplaced[0m
+[0m[31m-[0m/[32m+[0m[0m resource "aws_securityhub_product_subscription" "iam_access_analyzer" {
+      [33m~[0m[0m arn         = "arn:aws:securityhub:us-east-1:368351959735:product-subscription/aws/access-analyzer" -> (known after apply)
+      [33m~[0m[0m id          = "arn:aws:securityhub:us-east-1::product/aws/access-analyzer,arn:aws:securityhub:us-east-1:368351959735:product-subscription/aws/access-analyzer" -> (known after apply)
+      [33m~[0m[0m product_arn = "arn:aws:securityhub:us-east-1::product/aws/access-analyzer" -> (known after apply) [31m# forces replacement[0m[0m
+    }
+
+[1m  # module.security_hub.aws_securityhub_product_subscription.inspector[0m must be [1m[31mreplaced[0m
+[0m[31m-[0m/[32m+[0m[0m resource "aws_securityhub_product_subscription" "inspector" {
+      [33m~[0m[0m arn         = "arn:aws:securityhub:us-east-1:368351959735:product-subscription/aws/inspector" -> (known after apply)
+      [33m~[0m[0m id          = "arn:aws:securityhub:us-east-1::product/aws/inspector,arn:aws:securityhub:us-east-1:368351959735:product-subscription/aws/inspector" -> (known after apply)
+      [33m~[0m[0m product_arn = "arn:aws:securityhub:us-east-1::product/aws/inspector" -> (known after apply) [31m# forces replacement[0m[0m
+    }
+
+[1m  # module.security_hub.aws_securityhub_product_subscription.macie[0m must be [1m[31mreplaced[0m
+[0m[31m-[0m/[32m+[0m[0m resource "aws_securityhub_product_subscription" "macie" {
+      [33m~[0m[0m arn         = "arn:aws:securityhub:us-east-1:368351959735:product-subscription/aws/macie" -> (known after apply)
+      [33m~[0m[0m id          = "arn:aws:securityhub:us-east-1::product/aws/macie,arn:aws:securityhub:us-east-1:368351959735:product-subscription/aws/macie" -> (known after apply)
+      [33m~[0m[0m product_arn = "arn:aws:securityhub:us-east-1::product/aws/macie" -> (known after apply) [31m# forces replacement[0m[0m
+    }
+
+[1m  # module.security_hub.aws_securityhub_standards_subscription.aws_foundational[0][0m must be [1m[31mreplaced[0m
+[0m[31m-[0m/[32m+[0m[0m resource "aws_securityhub_standards_subscription" "aws_foundational" {
+      [33m~[0m[0m id            = "arn:aws:securityhub:us-east-1:368351959735:subscription/aws-foundational-security-best-practices/v/1.0.0" -> (known after apply)
+      [33m~[0m[0m standards_arn = "arn:aws:securityhub:us-east-1::standards/aws-foundational-security-best-practices/v/1.0.0" -> (known after apply) [31m# forces replacement[0m[0m
+    }
+
+[1m  # module.security_hub.aws_securityhub_standards_subscription.cis[0][0m must be [1m[31mreplaced[0m
+[0m[31m-[0m/[32m+[0m[0m resource "aws_securityhub_standards_subscription" "cis" {
+      [33m~[0m[0m id            = "arn:aws:securityhub:us-east-1:368351959735:subscription/cis-aws-foundations-benchmark/v/1.4.0" -> (known after apply)
+      [33m~[0m[0m standards_arn = "arn:aws:securityhub:us-east-1::standards/cis-aws-foundations-benchmark/v/1.4.0" -> (known after apply) [31m# forces replacement[0m[0m
+    }
+
+[1m  # module.security_hub.aws_securityhub_standards_subscription.pci_dss[0][0m must be [1m[31mreplaced[0m
+[0m[31m-[0m/[32m+[0m[0m resource "aws_securityhub_standards_subscription" "pci_dss" {
+      [33m~[0m[0m id            = "arn:aws:securityhub:us-east-1:368351959735:subscription/pci-dss/v/3.2.1" -> (known after apply)
+      [33m~[0m[0m standards_arn = "arn:aws:securityhub:us-east-1::standards/pci-dss/v/3.2.1" -> (known after apply) [31m# forces replacement[0m[0m
+    }
+
+[1m  # module.security_lake.data.aws_caller_identity.current[0m will be read during apply
+  # (depends on a resource or a module with changes pending)
+[0m [36m<=[0m[0m data "aws_caller_identity" "current" {
+      [32m+[0m[0m account_id = (known after apply)
+      [32m+[0m[0m arn        = (known after apply)
+      [32m+[0m[0m id         = (known after apply)
+      [32m+[0m[0m user_id    = (known after apply)
+    }
+
+[1m  # module.security_lake.data.aws_region.current[0m will be read during apply
+  # (depends on a resource or a module with changes pending)
+[0m [36m<=[0m[0m data "aws_region" "current" {
+      [32m+[0m[0m description = (known after apply)
+      [32m+[0m[0m endpoint    = (known after apply)
+      [32m+[0m[0m id          = (known after apply)
+      [32m+[0m[0m name        = (known after apply)
+    }
+
+[1m  # module.wiz.data.aws_caller_identity.current[0m will be read during apply
+  # (depends on a resource or a module with changes pending)
+[0m [36m<=[0m[0m data "aws_caller_identity" "current" {
+      [32m+[0m[0m account_id = (known after apply)
+      [32m+[0m[0m arn        = (known after apply)
+      [32m+[0m[0m id         = (known after apply)
+      [32m+[0m[0m user_id    = (known after apply)
+    }
+
+[1m  # module.wiz.data.aws_region.current[0m will be read during apply
+  # (depends on a resource or a module with changes pending)
+[0m [36m<=[0m[0m data "aws_region" "current" {
+      [32m+[0m[0m description = (known after apply)
+      [32m+[0m[0m endpoint    = (known after apply)
+      [32m+[0m[0m id          = (known after apply)
+      [32m+[0m[0m name        = (known after apply)
+    }
+
+[1mPlan:[0m [0m8 to add, 0 to change, 7 to destroy.
+
+Changes to Outputs:
+  [32m+[0m[0m crowdstrike_connector_instructions = <<-EOT
+        CrowdStrike Falcon Setup (after obtaining trial/CID):
+        1. Go to Falcon console → Host Setup and Management → Sensor Downloads
+        2. Copy your CID → set as crowdstrike_cid in terraform.tfvars
+        3. Go to Falcon console → Cloud Security → AWS → Add Account
+        4. Enter Falcon Horizon role ARN:
+           arn:aws:iam::368351959735:role/CrowdStrikeFalconHorizon
+        5. Enter External ID: CS-BOA-AMEX-HORIZON
+        6. Go to Falcon console → Data Replicator (FDR) → Add S3 Destination
+        7. Enter FDR bucket name: boa-amex-crowdstrike-fdr-368351959735
+        8. terraform apply — SSM Association installs sensor on all EC2 instances
+        9. FDR data lands in S3 → Lambda normalizes to OCSF → Security Lake → Sentinel
+    EOT
+  [32m+[0m[0m crowdstrike_status                 = {
+      [32m+[0m[0m container_security  = "DISABLED"
+      [32m+[0m[0m edr                 = "DISABLED"
+      [32m+[0m[0m falcon_horizon      = "DISABLED"
+      [32m+[0m[0m fdr                 = "DISABLED"
+      [32m+[0m[0m identity_protection = "DISABLED"
+      [32m+[0m[0m sensor_deployment   = "DISABLED"
+      [32m+[0m[0m trial_status        = "Contact CrowdStrike for 15-day trial — crowdstrike.com/free-trial"
+    }
+  [32m+[0m[0m occ_evidence_crowdstrike           = "Satisfies: OCC endpoint detection and response requirement, PCI-DSS Req 5 (malware protection), PCI-DSS Req 10 (endpoint activity logging and monitoring), PCI-DSS Req 11.5 (intrusion detection). CrowdStrike Falcon provides EDR, CSPM, and identity protection across all endpoints, with telemetry normalized to OCSF and routed to Security Lake for centralized analysis."
+[0m[1mmodule.security_hub.aws_securityhub_standards_subscription.aws_foundational[0]: Destroying... [id=arn:aws:securityhub:us-east-1:368351959735:subscription/aws-foundational-security-best-practices/v/1.0.0][0m[0m
+[0m[1mmodule.security_hub.aws_securityhub_product_subscription.iam_access_analyzer: Destroying... [id=arn:aws:securityhub:us-east-1::product/aws/access-analyzer,arn:aws:securityhub:us-east-1:368351959735:product-subscription/aws/access-analyzer][0m[0m
+[0m[1mmodule.security_hub.aws_securityhub_product_subscription.guardduty: Destroying... [id=arn:aws:securityhub:us-east-1::product/aws/guardduty,arn:aws:securityhub:us-east-1:368351959735:product-subscription/aws/guardduty][0m[0m
+[0m[1mmodule.security_hub.aws_securityhub_standards_subscription.pci_dss[0]: Destroying... [id=arn:aws:securityhub:us-east-1:368351959735:subscription/pci-dss/v/3.2.1][0m[0m
+[0m[1mmodule.security_hub.aws_securityhub_standards_subscription.cis[0]: Destroying... [id=arn:aws:securityhub:us-east-1:368351959735:subscription/cis-aws-foundations-benchmark/v/1.4.0][0m[0m
+[0m[1mmodule.security_hub.aws_securityhub_product_subscription.inspector: Destroying... [id=arn:aws:securityhub:us-east-1::product/aws/inspector,arn:aws:securityhub:us-east-1:368351959735:product-subscription/aws/inspector][0m[0m
+[0m[1mmodule.security_hub.aws_securityhub_product_subscription.macie: Destroying... [id=arn:aws:securityhub:us-east-1::product/aws/macie,arn:aws:securityhub:us-east-1:368351959735:product-subscription/aws/macie][0m[0m
+[0m[1mmodule.security_hub.aws_securityhub_product_subscription.inspector: Destruction complete after 0s[0m
+[0m[1mmodule.security_hub.aws_securityhub_product_subscription.macie: Destruction complete after 0s[0m
+[0m[1mmodule.security_hub.aws_securityhub_product_subscription.iam_access_analyzer: Destruction complete after 0s[0m
+[0m[1mmodule.security_hub.aws_securityhub_product_subscription.guardduty: Destruction complete after 0s[0m
+[0m[1mmodule.security_hub.aws_securityhub_standards_subscription.pci_dss[0]: Destruction complete after 8s[0m
+[0m[1mmodule.security_hub.aws_securityhub_standards_subscription.aws_foundational[0]: Still destroying... [id=arn:aws:securityhub:us-east-1:368351959...tional-security-best-practices/v/1.0.0, 00m10s elapsed][0m[0m
+[0m[1mmodule.security_hub.aws_securityhub_standards_subscription.cis[0]: Still destroying... [id=arn:aws:securityhub:us-east-1:368351959.../cis-aws-foundations-benchmark/v/1.4.0, 00m10s elapsed][0m[0m
+[0m[1mmodule.security_hub.aws_securityhub_standards_subscription.aws_foundational[0]: Destruction complete after 16s[0m
+[0m[1mmodule.security_hub.aws_securityhub_standards_subscription.cis[0]: Destruction complete after 16s[0m
+[0m[1mmodule.log_archive.aws_sns_topic_subscription.log_archive_alert_email: Creating...[0m[0m
+[0m[1mmodule.log_archive.aws_sns_topic_subscription.log_archive_alert_email: Creation complete after 1s [id=arn:aws:sns:us-east-1:368351959735:boa-amex-log-archive-alerts:eb814292-e8b6-4432-b27c-668c0b13e417][0m
+[0m[1mmodule.guardduty.data.aws_caller_identity.current: Reading...[0m[0m
+[0m[1mmodule.wiz.data.aws_region.current: Reading...[0m[0m
+[0m[1mmodule.guardduty.data.aws_region.current: Reading...[0m[0m
+[0m[1mmodule.wiz.data.aws_caller_identity.current: Reading...[0m[0m
+[0m[1mmodule.crowdstrike.data.aws_region.current: Reading...[0m[0m
+[0m[1mmodule.guardduty.data.aws_region.current: Read complete after 0s [id=us-east-1][0m
+[0m[1mmodule.crowdstrike.data.aws_caller_identity.current: Reading...[0m[0m
+[0m[1mmodule.wiz.data.aws_region.current: Read complete after 0s [id=us-east-1][0m
+[0m[1mmodule.crowdstrike.data.aws_region.current: Read complete after 0s [id=us-east-1][0m
+[0m[1mmodule.wiz.data.aws_caller_identity.current: Read complete after 0s [id=368351959735][0m
+[0m[1mmodule.guardduty.data.aws_caller_identity.current: Read complete after 0s [id=368351959735][0m
+[0m[1mmodule.security_hub.data.aws_region.current: Reading...[0m[0m
+[0m[1mmodule.detective.data.aws_region.current: Reading...[0m[0m
+[0m[1mmodule.detective.data.aws_caller_identity.current: Reading...[0m[0m
+[0m[1mmodule.security_hub.data.aws_caller_identity.current: Reading...[0m[0m
+[0m[1mmodule.security_hub.data.aws_region.current: Read complete after 0s [id=us-east-1][0m
+[0m[1mmodule.detective.data.aws_region.current: Read complete after 0s [id=us-east-1][0m
+[0m[1mmodule.security_hub.aws_securityhub_product_subscription.macie: Creating...[0m[0m
+[0m[1mmodule.security_hub.aws_securityhub_product_subscription.inspector: Creating...[0m[0m
+[0m[1mmodule.security_hub.aws_securityhub_product_subscription.guardduty: Creating...[0m[0m
+[0m[1mmodule.security_hub.aws_securityhub_standards_subscription.pci_dss[0]: Creating...[0m[0m
+[0m[1mmodule.security_hub.aws_securityhub_standards_subscription.aws_foundational[0]: Creating...[0m[0m
+[0m[1mmodule.security_hub.aws_securityhub_standards_subscription.cis[0]: Creating...[0m[0m
+[0m[1mmodule.security_hub.aws_securityhub_product_subscription.iam_access_analyzer: Creating...[0m[0m
+[0m[1mmodule.crowdstrike.data.aws_caller_identity.current: Read complete after 0s [id=368351959735][0m
+[0m[1mmodule.detective.data.aws_caller_identity.current: Read complete after 0s [id=368351959735][0m
+[0m[1mmodule.security_hub.data.aws_caller_identity.current: Read complete after 0s [id=368351959735][0m
+[0m[1mmodule.security_hub.aws_securityhub_product_subscription.inspector: Creation complete after 5s [id=arn:aws:securityhub:us-east-1::product/aws/inspector,arn:aws:securityhub:us-east-1:368351959735:product-subscription/aws/inspector][0m
+[0m[1mmodule.security_hub.aws_securityhub_product_subscription.macie: Creation complete after 5s [id=arn:aws:securityhub:us-east-1::product/aws/macie,arn:aws:securityhub:us-east-1:368351959735:product-subscription/aws/macie][0m
+[0m[1mmodule.security_hub.aws_securityhub_product_subscription.iam_access_analyzer: Creation complete after 6s [id=arn:aws:securityhub:us-east-1::product/aws/access-analyzer,arn:aws:securityhub:us-east-1:368351959735:product-subscription/aws/access-analyzer][0m
+[0m[1mmodule.security_hub.aws_securityhub_product_subscription.guardduty: Creation complete after 6s [id=arn:aws:securityhub:us-east-1::product/aws/guardduty,arn:aws:securityhub:us-east-1:368351959735:product-subscription/aws/guardduty][0m
+[0m[1mmodule.security_hub.aws_securityhub_standards_subscription.pci_dss[0]: Still creating... [00m10s elapsed][0m[0m
+[0m[1mmodule.security_hub.aws_securityhub_standards_subscription.aws_foundational[0]: Still creating... [00m10s elapsed][0m[0m
+[0m[1mmodule.security_hub.aws_securityhub_standards_subscription.cis[0]: Still creating... [00m10s elapsed][0m[0m
+[0m[1mmodule.security_hub.aws_securityhub_standards_subscription.cis[0]: Creation complete after 16s [id=arn:aws:securityhub:us-east-1:368351959735:subscription/cis-aws-foundations-benchmark/v/1.4.0][0m
+[0m[1mmodule.security_hub.aws_securityhub_standards_subscription.aws_foundational[0]: Creation complete after 17s [id=arn:aws:securityhub:us-east-1:368351959735:subscription/aws-foundational-security-best-practices/v/1.0.0][0m
+[0m[1mmodule.security_hub.aws_securityhub_standards_subscription.pci_dss[0]: Still creating... [00m20s elapsed][0m[0m
+[0m[1mmodule.security_hub.aws_securityhub_standards_subscription.pci_dss[0]: Creation complete after 27s [id=arn:aws:securityhub:us-east-1:368351959735:subscription/pci-dss/v/3.2.1][0m
+[0m[1mmodule.security_lake.data.aws_region.current: Reading...[0m[0m
+[0m[1mmodule.security_lake.data.aws_caller_identity.current: Reading...[0m[0m
+[0m[1mmodule.security_lake.data.aws_region.current: Read complete after 0s [id=us-east-1][0m
+[0m[1mmodule.security_lake.data.aws_caller_identity.current: Read complete after 0s [id=368351959735][0m
+[0m[1m[32m
+Apply complete! Resources: 8 added, 0 changed, 7 destroyed.[0m
+[0m[1m[32m
+Outputs:
+
+[0mcrowdstrike_connector_instructions = <<EOT
+CrowdStrike Falcon Setup (after obtaining trial/CID):
+1. Go to Falcon console → Host Setup and Management → Sensor Downloads
+2. Copy your CID → set as crowdstrike_cid in terraform.tfvars
+3. Go to Falcon console → Cloud Security → AWS → Add Account
+4. Enter Falcon Horizon role ARN:
+   arn:aws:iam::368351959735:role/CrowdStrikeFalconHorizon
+5. Enter External ID: CS-BOA-AMEX-HORIZON
+6. Go to Falcon console → Data Replicator (FDR) → Add S3 Destination
+7. Enter FDR bucket name: boa-amex-crowdstrike-fdr-368351959735
+8. terraform apply — SSM Association installs sensor on all EC2 instances
+9. FDR data lands in S3 → Lambda normalizes to OCSF → Security Lake → Sentinel
+
+EOT
+crowdstrike_status = {
+  "container_security" = "DISABLED"
+  "edr" = "DISABLED"
+  "falcon_horizon" = "DISABLED"
+  "fdr" = "DISABLED"
+  "identity_protection" = "DISABLED"
+  "sensor_deployment" = "DISABLED"
+  "trial_status" = "Contact CrowdStrike for 15-day trial — crowdstrike.com/free-trial"
+}
+detective_graph_arn = "arn:aws:detective:us-east-1:368351959735:graph:97cadf0d24b147f0bfd76cfac41ea1a1"
+detective_status = {
+  "graph_arn" = "arn:aws:detective:us-east-1:368351959735:graph:97cadf0d24b147f0bfd76cfac41ea1a1"
+  "member_accounts" = tolist([
+    "445459853572",
+  ])
+  "org_datasources" = "ENABLED"
+}
+enabled_standards = tolist([
+  "CIS AWS Foundations Benchmark v1.4.0",
+  "PCI-DSS v3.2.1",
+  "AWS Foundational Security Best Practices v1.0.0",
+])
+guardduty_detector_id = "b6cf6963ce4553017b19d5bb98e6b209"
+guardduty_occ_evidence = "Satisfies: OCC continuous monitoring requirement (org-wide GuardDuty, auto-enabled for new accounts), PCI-DSS Req 5 (malicious activity detection), 15-minute finding publishing frequency for timely alerting"
+guardduty_status = {
+  "eks_protection" = "ENABLED"
+  "enabled" = "ENABLED"
+  "finding_frequency" = "FIFTEEN_MINUTES"
+  "findings_export" = "ENABLED — exporting to Log Archive bucket"
+  "lambda_protection" = "ENABLED"
+  "malware_protection" = "ENABLED"
+  "org_auto_enable" = "ENABLED — new accounts auto-protected"
+  "rds_protection" = "ENABLED"
+  "runtime_monitoring" = "DISABLED"
+  "s3_protection" = "ENABLED"
+  "sentinel_connected" = "NO — pending Azure subscription"
+}
+log_archive_bucket_arn = "arn:aws:s3:::boa-amex-log-archive-368351959735"
+log_archive_bucket_name = "boa-amex-log-archive-368351959735"
+log_archive_kms_key_arn = "arn:aws:kms:us-east-1:368351959735:key/c0bb555a-2316-474a-b49a-fc6e40e47912"
+log_archive_status = {
+  "bucket_name" = "boa-amex-log-archive-368351959735"
+  "encryption" = "AWS KMS CMK — alias/boa-amex-log-archive"
+  "lifecycle" = "Standard(90d) → GlacierIR(365d) → DeepArchive(2555d)"
+  "object_lock" = "ENABLED — COMPLIANCE mode 2555 days"
+  "sentinel_connected" = "NO — pending Azure subscription"
+  "versioning" = "ENABLED"
+}
+occ_evidence = "Satisfies: OCC immutable audit trail requirement (Object Lock COMPLIANCE), PCI-DSS Req 10.5 (protect audit trails), PCI-DSS Req 3.5 (encrypt stored data), 7-year retention policy"
+occ_evidence_crowdstrike = "Satisfies: OCC endpoint detection and response requirement, PCI-DSS Req 5 (malware protection), PCI-DSS Req 10 (endpoint activity logging and monitoring), PCI-DSS Req 11.5 (intrusion detection). CrowdStrike Falcon provides EDR, CSPM, and identity protection across all endpoints, with telemetry normalized to OCSF and routed to Security Lake for centralized analysis."
+occ_evidence_detective = "Satisfies: OCC incident investigation requirement, PCI-DSS Req 12.10 (incident response plan). Detective provides automated forensic timeline and blast radius assessment — reduces investigation time from days to minutes."
+occ_evidence_security_hub = "Satisfies: OCC continuous compliance monitoring requirement (CIS/PCI-DSS/AWS-Foundational standards, org-wide auto-enable), PCI-DSS Req 11/12 (security monitoring and controls testing), single pane of glass across GuardDuty/Inspector/Macie/IAM Access Analyzer/Config findings"
+occ_evidence_security_lake = "Satisfies: OCC unified log management requirement. Security Lake normalizes all AWS security logs to OCSF format providing a single queryable data lake for OCC examiners. Enables Sentinel SIEM correlation across CloudTrail, VPC Flow Logs, Security Hub, and DNS logs."
+occ_evidence_wiz = "Satisfies: OCC CSPM requirement (continuous misconfiguration detection), PCI-DSS Req 6.3 (vulnerability management), PCI-DSS Req 11.3 (external vulnerability scanning). Wiz Security Graph provides attack path analysis connecting misconfigurations, vulnerabilities, and identity risks across all accounts."
+phase_2_status = {
+  "config" = "NOT STARTED — module reverted, see modules/config"
+  "detective" = "COMPLETE — arn:aws:detective:us-east-1:368351959735:graph:97cadf0d24b147f0bfd76cfac41ea1a1"
+  "guardduty" = "COMPLETE — detector b6cf6963ce4553017b19d5bb98e6b209"
+  "log_archive" = "COMPLETE — boa-amex-log-archive-368351959735"
+  "security_hub" = "COMPLETE — arn:aws:securityhub:us-east-1:368351959735:hub/default"
+  "security_lake" = "DISABLED — data lake creation fails (FAILED status, root cause unknown), see modules/security-lake, fix planned for cleanup PR"
+  "sentinel" = "PENDING — Azure subscription required"
+  "wiz" = "COMPLETE — arn:aws:iam::368351959735:role/WizScanner"
+}
+security_hub_alerts_topic_arn = "arn:aws:sns:us-east-1:368351959735:boa-amex-security-hub-alerts"
+security_hub_arn = "arn:aws:securityhub:us-east-1:368351959735:hub/default"
+security_hub_status = {
+  "aws_foundational" = "ENABLED"
+  "cis_standard" = "ENABLED"
+  "critical_alert_email" = "emaina@arizona.edu"
+  "enabled" = "ENABLED"
+  "finding_aggregation" = "ENABLED"
+  "nist_standard" = "DISABLED"
+  "org_auto_enable" = "ENABLED — new accounts auto-protected"
+  "pci_dss_standard" = "ENABLED"
+  "sentinel_connected" = "NO — pending Azure subscription"
+}
+security_lake_arn = ""
+security_lake_s3_bucket = ""
+security_lake_status = {
+  "cloudtrail_source" = "ENABLED"
+  "enabled" = false
+  "lambda_source" = "DISABLED"
+  "org_sources" = "ENABLED — includes 1 member account(s)"
+  "retention_days" = 365
+  "route53_source" = "ENABLED"
+  "security_hub_source" = "ENABLED"
+  "sentinel_subscriber" = "DISABLED — pending Azure subscription"
+  "vpc_flow_logs_source" = "ENABLED"
+}
+sentinel_connection_instructions = <<EOT
+When Azure subscription is active:
+1. Go to Azure Portal → Microsoft Sentinel
+2. Data Connectors → Amazon Web Services S3
+3. Copy the External ID shown
+4. Set in terraform.tfvars:
+     enable_sentinel_integration = true
+     sentinel_external_id        = "EXTERNAL_ID_FROM_AZURE"
+5. Run: terraform apply
+6. Get the SQS queue URL — Terraform can't surface it directly
+   (aws_securitylake_subscriber_notification exposes no computed
+   attribute for it), so retrieve it via:
+     aws securitylake get-subscriber --id <subscriber-id> --profile security-tooling
+   or AWS Console -> Security Lake -> Subscribers
+7. Paste the queue URL into Sentinel's AWS S3 connector
+8. Sentinel starts ingesting OCSF data within 5 minutes
+
+EOT
+sentinel_integration_status = "DISABLED — flip enable_sentinel_integration=true when Azure subscription is active"
+verify_commands = {
+  "bucket_policy" = "aws s3api get-bucket-policy --bucket boa-amex-log-archive-368351959735 --output json"
+  "bucket_versioning" = "aws s3api get-bucket-versioning --bucket boa-amex-log-archive-368351959735 && aws s3api get-object-lock-configuration --bucket boa-amex-log-archive-368351959735"
+  "kms_encryption" = "aws s3api get-bucket-encryption --bucket boa-amex-log-archive-368351959735 --query 'ServerSideEncryptionConfiguration.Rules[0].ApplyServerSideEncryptionByDefault'"
+  "list_kms_keys" = "aws kms list-aliases --query \"Aliases[?contains(AliasName,'boa-amex')].{Alias:AliasName,KeyId:TargetKeyId}\" --output table --profile security-tooling"
+}
+wiz_connector_instructions = <<EOT
+Wiz Connector Setup (after obtaining trial):
+1. Go to Wiz console → Settings → Connectors
+2. Add connector → AWS
+3. Select: Organization connector
+4. Enter Management account ID: 682391277575
+5. Enter WizScanner role ARN:
+   arn:aws:iam::368351959735:role/WizScanner
+6. Enter External ID: WIZ-BOA-AMEX-SCANNER
+7. Wiz performs initial scan (2-4 hours)
+8. Findings appear in Wiz Security Graph
+9. Configure alert routing:
+   Wiz console → Integrations → AWS Security Hub
+   → Findings flow into Security Hub → Sentinel
+
+EOT
+wiz_scanner_role_arn = "arn:aws:iam::368351959735:role/WizScanner"
+wiz_status = {
+  "ciem_scanning" = "ENABLED"
+  "cspm_scanning" = "ENABLED"
+  "cwpp_scanning" = "ENABLED"
+  "data_scanning" = "ENABLED"
+  "kms_grants" = "ENABLED"
+  "scanner_role" = "CREATED — arn:aws:iam::368351959735:role/WizScanner"
+  "trial_status" = "Contact sales@wiz.io for 30-day trial"
+}

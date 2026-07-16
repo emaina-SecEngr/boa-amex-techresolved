@@ -324,3 +324,163 @@ module "wiz" {
     module.log_archive
   ]
 }
+
+# ============================================================
+# MODULE CALL — crowdstrike
+# Phase 3, Module 1 — endpoint detection and response
+#
+# TOGGLE: enable_crowdstrike = false
+# Enable when CrowdStrike trial/subscription active
+# Get CID from: Falcon console → Host Setup → Sensor Downloads
+# ============================================================
+module "crowdstrike" {
+  source = "../../modules/crowdstrike"
+
+  aws_region                  = var.aws_region
+  project_prefix              = var.project_prefix
+  security_tooling_account_id = var.security_tooling_account_id
+  organization_id             = var.organization_id
+
+  log_archive_kms_key_arn = module.log_archive.log_archive_kms_key_arn
+
+  # Master toggle — false until trial active
+  enable_crowdstrike = false
+
+  # CrowdStrike account config — from onboarding
+  crowdstrike_cid            = ""
+  crowdstrike_aws_account_id = "292230061137"
+  crowdstrike_external_id    = ""
+
+  # Sensor deployment
+  enable_sensor_deployment = true
+  sensor_version           = "Latest"
+  sensor_target_platform   = "Linux"
+  ssm_association_schedule = "cron(0 2 * * ? *)"
+
+  # Falcon Horizon CSPM
+  enable_falcon_horizon = true
+
+  # FDR telemetry streaming
+  enable_fdr         = true
+  fdr_bucket_name    = "boa-amex-crowdstrike-fdr-368351959735"
+  fdr_retention_days = 90
+
+  # Detection modules
+  enable_edr                 = true
+  enable_identity_protection = true
+  enable_container_security  = false
+
+  # Alerting
+  critical_detection_threshold = 4
+  security_alert_email         = var.security_alert_email
+  security_alert_topic_arn     = ""
+
+  # Sentinel — disabled until Azure subscription fixed
+  enable_sentinel_integration = false
+
+  common_tags = var.common_tags
+
+  depends_on = [module.log_archive]
+}
+
+# ============================================================
+# MODULE CALL — palo-alto
+# Phase 3, Module 2 — network inspection (Palo Alto + AWS NFW)
+#
+# ALL TOGGLES OFF BY DEFAULT:
+#   enable_palo_alto = false ($1,440+/month)
+#   enable_aws_network_firewall = false ($285/month)
+#   enable_transit_gateway = false ($36/month)
+# ============================================================
+module "palo_alto" {
+  source = "../../modules/palo-alto"
+
+  aws_region                  = var.aws_region
+  project_prefix              = var.project_prefix
+  security_tooling_account_id = var.security_tooling_account_id
+  organization_id             = var.organization_id
+
+  # All toggled off — enable for demos
+  enable_palo_alto            = false
+  enable_aws_network_firewall = false
+  enable_transit_gateway      = false
+
+  # Security VPC config (ready when toggled on)
+  security_vpc_cidr       = "10.0.0.0/16"
+  inspection_subnet_cidrs = ["10.0.1.0/24", "10.0.2.0/24"]
+  management_subnet_cidrs = ["10.0.3.0/24", "10.0.4.0/24"]
+  availability_zones      = ["us-east-1a", "us-east-1b"]
+
+  # Palo Alto config (when enabled)
+  palo_alto_ami_id         = ""
+  palo_alto_instance_type  = "m5.xlarge"
+  palo_alto_instance_count = 2
+  panorama_server          = ""
+  panorama_device_group    = "BOA-AMEX-AWS"
+
+  # Network Firewall config (when enabled)
+  enable_suricata_rules = true
+  blocked_domains = [
+    "*.tor2web.com",
+    "*.onion.to",
+    "pastebin.com",
+    "*.duckdns.org",
+    "*.no-ip.com"
+  ]
+
+  # Logging
+  log_archive_bucket_name = module.log_archive.log_archive_bucket_name
+  log_archive_kms_key_arn = module.log_archive.log_archive_kms_key_arn
+  enable_flow_logs        = true
+  enable_firewall_logs    = true
+
+  # Sentinel
+  enable_sentinel_integration = false
+
+  security_alert_email = var.security_alert_email
+  common_tags          = var.common_tags
+
+  depends_on = [module.log_archive]
+}
+
+# ============================================================
+# MODULE CALL — sentinel
+# Phase 3, Module 3 — Microsoft Sentinel SIEM connector
+#
+# TOGGLE: enable_sentinel = false
+# Enable when Azure student subscription is restored
+# See: module.sentinel.sentinel_activation_instructions
+# ============================================================
+module "sentinel" {
+  source = "../../modules/sentinel"
+
+  aws_region                  = var.aws_region
+  project_prefix              = var.project_prefix
+  security_tooling_account_id = var.security_tooling_account_id
+  organization_id             = var.organization_id
+
+  # Master toggle — false until Azure is fixed
+  enable_sentinel = false
+
+  # Sentinel workspace — fill when Azure restored
+  sentinel_workspace_id    = ""
+  sentinel_workspace_key   = ""
+  sentinel_azure_tenant_id = "288a15d1-700c-482b-a591-7c1d4e6c4f3c"
+
+  # Data source connectors
+  enable_cloudtrail_connector    = true
+  enable_guardduty_connector     = true
+  enable_security_hub_connector  = true
+  enable_vpc_flow_logs_connector = true
+  enable_waf_connector           = false
+
+  # S3 references
+  log_archive_bucket_name = module.log_archive.log_archive_bucket_name
+  log_archive_bucket_arn  = module.log_archive.log_archive_bucket_arn
+  log_archive_kms_key_arn = module.log_archive.log_archive_kms_key_arn
+
+  security_alert_email = var.security_alert_email
+  common_tags          = var.common_tags
+
+  depends_on = [module.log_archive]
+}
