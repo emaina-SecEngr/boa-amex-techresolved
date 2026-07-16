@@ -442,3 +442,45 @@ module "palo_alto" {
 
   depends_on = [module.log_archive]
 }
+
+# ============================================================
+# MODULE CALL — sentinel
+# Phase 3, Module 3 — Microsoft Sentinel SIEM connector
+#
+# TOGGLE: enable_sentinel = false
+# Enable when Azure student subscription is restored
+# See: module.sentinel.sentinel_activation_instructions
+# ============================================================
+module "sentinel" {
+  source = "../../modules/sentinel"
+
+  aws_region                  = var.aws_region
+  project_prefix              = var.project_prefix
+  security_tooling_account_id = var.security_tooling_account_id
+  organization_id             = var.organization_id
+
+  # Master toggle — false until Azure is fixed
+  enable_sentinel = false
+
+  # Sentinel workspace — fill when Azure restored
+  sentinel_workspace_id    = ""
+  sentinel_workspace_key   = ""
+  sentinel_azure_tenant_id = "288a15d1-700c-482b-a591-7c1d4e6c4f3c"
+
+  # Data source connectors
+  enable_cloudtrail_connector    = true
+  enable_guardduty_connector     = true
+  enable_security_hub_connector  = true
+  enable_vpc_flow_logs_connector = true
+  enable_waf_connector           = false
+
+  # S3 references
+  log_archive_bucket_name = module.log_archive.log_archive_bucket_name
+  log_archive_bucket_arn  = module.log_archive.log_archive_bucket_arn
+  log_archive_kms_key_arn = module.log_archive.log_archive_kms_key_arn
+
+  security_alert_email = var.security_alert_email
+  common_tags          = var.common_tags
+
+  depends_on = [module.log_archive]
+}
