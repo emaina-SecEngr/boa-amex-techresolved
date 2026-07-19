@@ -1,0 +1,51 @@
+# =============================================================
+# LBBS .gitignore
+# =============================================================
+
+# --- Environment & Secrets (NEVER commit these) ---
+.env
+.env.local
+.env.production
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+venv/
+.venv/
+lbbs_venv/
+
+# --- Node.js ---
+node_modules/
+dist/
+.vite/
+
+# --- IDE ---
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# --- Database ---
+*.db
+*.sqlite3
+
+# --- Docker ---
+docker-compose.override.yml
+
+# --- Testing ---
+.coverage
+htmlcov/
+.pytest_cache/
+
+# --- Logs ---
+*.log
+
+# --- Terraform (never commit state or plugin cache) ---
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.*.tfstate

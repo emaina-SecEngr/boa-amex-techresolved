@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<title>{{ project_name }} - New Account</title>
+</head>
+
+<body style="font-family: Arial, sans-serif; line-height: 1.5; color: #333;">
+	<h2>Welcome to {{ project_name }}</h2>
+	<p>Hello {{ username }},</p>
+	<p>An account has been created for you. You can log in using the credentials below:</p>
+	<ul>
+		<li>Email: {{ email }}</li>
+		<li>Password: {{ password }}</li>
+	</ul>
+	<p>You can log in here: <a href="{{ link }}" style="color: #1a73e8;">{{ link }}</a></p>
+	<p>For security, we recommend changing your password after your first login.</p>
+	<p>Thank you,<br>{{ project_name }} Team</p>
+</body>
+
+</html>

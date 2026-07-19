@@ -1,0 +1,102 @@
+# ==============================================================
+# LBBS 3-Tier Containerized Architecture
+# ==============================================================
+# docker-compose up -d     → Start all 3 containers
+# docker-compose down      → Stop all (data preserved in volume)
+# docker-compose down -v   → Stop all + DELETE data (reset)
+# docker-compose logs -f   → Watch all logs
+# docker-compose ps        → Check container status
+# ==============================================================
+
+version: "3.9"
+
+services:
+  # ────────────────────────────────────────────────
+  # TIER 3: DATABASE (PostgreSQL + Persistent Volume)
+  # ────────────────────────────────────────────────
+  db:
+    image: postgres:16-alpine
+    container_name: lbbs-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: lbbs_db
+      POSTGRES_USER: lbbs_user
+      POSTGRES_PASSWORD: lbbs_secret_2026
+    ports:
+      - "5434:5432"
+    volumes:
+      - lbbs_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lbbs_user -d lbbs_db"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - lbbs-network
+
+  # ────────────────────────────────────────────────
+  # TIER 2: BACKEND (FastAPI + Uvicorn)
+  # ────────────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: lbbs-backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://lbbs_user:lbbs_secret_2026@db:5432/lbbs_db
+      APP_ENV: development
+      APP_NAME: "Life Beyond the Books Scheduler"
+      SEED_DEV_ADMIN: "true"
+      JWT_SECRET_KEY: lbbs-dev-secret-key-change-in-prod
+      CORS_ORIGINS: "http://localhost:3000,http://localhost:5173,http://localhost"
+      # Email (console mode in dev — set SMTP_HOST for real emails)
+      # SMTP_HOST: smtp.sendgrid.net
+      # SMTP_PORT: 587
+      # SMTP_USER: apikey
+      # SMTP_PASSWORD: your-key
+      # SMTP_FROM: noreply@lifebeyondthebooksaz.org
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - lbbs-network
+
+  # ────────────────────────────────────────────────
+  # TIER 1: FRONTEND (React + Nginx)
+  # ────────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: lbbs-frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - lbbs-network
+
+# ────────────────────────────────────────────────
+# PERSISTENT VOLUME (survives container restarts)
+# ────────────────────────────────────────────────
+volumes:
+  lbbs_pgdata:
+    driver: local
+    # Data stored at: /var/lib/docker/volumes/lbbs_pgdata/_data
+    # Survives: container restart, rebuild, upgrade
+    # Destroyed only by: docker-compose down -v
+
+# ────────────────────────────────────────────────
+# INTERNAL NETWORK (containers talk to each other)
+# ────────────────────────────────────────────────
+networks:
+  lbbs-network:
+    driver: bridge
+    # Frontend → Backend: http://backend:8000
+    # Backend → Database: postgresql://...@db:5432/lbbs_db
+    # External users → Frontend: http://localhost:80
+

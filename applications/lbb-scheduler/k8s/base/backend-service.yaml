@@ -1,0 +1,29 @@
+# ============================================================
+# LBBS Kubernetes — Backend Service (Per District)
+# ============================================================
+# A Service is the stable address for the backend pods.
+# Pods come and go (scaling, crashes, updates).
+# The Service always points to healthy pods.
+#
+# Think of it as:
+#   Pods = individual employees (come and go)
+#   Service = the department phone number (always works)
+# ============================================================
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: lbbs-backend-service
+  namespace: lbbs-DISTRICT_NAME
+  labels:
+    app: lbbs-backend
+    district: DISTRICT_NAME
+spec:
+  selector:
+    app: lbbs-backend
+    district: DISTRICT_NAME
+  ports:
+    - port: 8000
+      targetPort: 8000
+      protocol: TCP
+  type: ClusterIP  # Internal only — ALB/Ingress routes external traffic

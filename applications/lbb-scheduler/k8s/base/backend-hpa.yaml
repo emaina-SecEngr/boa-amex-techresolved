@@ -1,0 +1,60 @@
+# ============================================================
+# LBBS Kubernetes — Horizontal Pod Autoscaler (Per District)
+# ============================================================
+# Automatically scales pods based on CPU usage.
+#
+# HOW IT WORKS:
+#   Normal:     2 pods running (min)
+#   CPU > 70%:  HPA adds pods → 3, 4, 5...
+#   CPU < 70%:  HPA removes pods → back to 2
+#   Max:        8 pods (prevents runaway scaling)
+#
+# EXAMPLE:
+#   Monday morning → 500 users login → CPU spikes to 85%
+#   HPA: "CPU > 70%! Scaling from 2 → 4 pods"
+#   4 pods handle the load → CPU drops to 45%
+#   Evening → users leave → CPU drops to 15%
+#   HPA: "CPU < 70% for 5 minutes. Scaling from 4 → 2 pods"
+# ============================================================
+
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: lbbs-backend-hpa
+  namespace: lbbs-DISTRICT_NAME
+  labels:
+    app: lbbs-backend
+    district: DISTRICT_NAME
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: lbbs-backend
+  minReplicas: 2   # Always at least 2 (high availability)
+  maxReplicas: 8   # Never more than 8 (cost control)
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70  # Scale up when CPU > 70%
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80  # Scale up when memory > 80%
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 60   # Wait 60s before scaling up again
+      policies:
+        - type: Pods
+          value: 2            # Add max 2 pods at a time
+          periodSeconds: 60
+    scaleDown:
+      stabilizationWindowSeconds: 300  # Wait 5 min before scaling down
+      policies:
+        - type: Pods
+          value: 1            # Remove max 1 pod at a time
+          periodSeconds: 120
