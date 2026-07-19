@@ -1,0 +1,6 @@
+projectKey=devsecops-lbbs-project_lbbs-project-sfwe-402_25ff994f-aacb-482e-b677-f4df8c33461b
+serverUrl=https://sonar.def.engr.arizona.edu
+serverVersion=25.8.0.112029
+dashboardUrl=https://sonar.def.engr.arizona.edu/dashboard?id=devsecops-lbbs-project_lbbs-project-sfwe-402_25ff994f-aacb-482e-b677-f4df8c33461b
+ceTaskId=8356d61a-5d41-462a-ac3f-2df3263e9e5b
+ceTaskUrl=https://sonar.def.engr.arizona.edu/api/ce/task?id=8356d61a-5d41-462a-ac3f-2df3263e9e5b

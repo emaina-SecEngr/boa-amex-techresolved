@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>School record added</title>
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.5; color: #333;">
+  <h2>{{ project_name }}</h2>
+  <p>Hello {{ poc_name }},</p>
+  <p>
+    This confirms that <strong>{{ school_name }}</strong> has been registered in the
+    Life Beyond the Books Scheduler on <strong>{{ registered_at }}</strong>.
+  </p>
+  <p>
+    If your school has been given a portal account, you can sign in and manage your schedule:
+  </p>
+  <ul>
+    <li><strong>Sign in:</strong> <a href="{{ login_url }}">{{ login_url }}</a></li>
+    <li><strong>School schedule:</strong> <a href="{{ schedule_url }}">{{ schedule_url }}</a></li>
+  </ul>
+  <p>
+    If you do not yet have login credentials, your LBB administrator will provide them separately.
+    This message does not contain a password.
+  </p>
+  <p>If you have questions, contact the LBB program office.</p>
+  <p>Thank you,<br>{{ project_name }} Team</p>
+</body>
+</html>

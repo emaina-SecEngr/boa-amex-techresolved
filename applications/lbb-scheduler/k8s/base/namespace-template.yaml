@@ -1,0 +1,124 @@
+# ============================================================
+# LBBS Kubernetes — District Namespace Template
+# ============================================================
+# Each school district gets its OWN namespace.
+# A namespace is like a virtual cluster inside the cluster.
+# District A cannot see District B's pods, secrets, or data.
+#
+# WHY NAMESPACES?
+#   Without namespaces:
+#     All districts share everything → data leak risk
+#     One district's bug crashes everyone → no isolation
+#
+#   With namespaces:
+#     Each district is isolated → data stays separate
+#     One district's issue doesn't affect others → fault isolation
+#     Resources can be limited per district → fair usage
+#
+# HOW TO USE:
+#   For each new district, copy this template and replace:
+#     DISTRICT_NAME → tucson-usd, sunnyside-usd, etc.
+#
+# EXAMPLE:
+#   kubectl apply -f namespace-tucson-usd.yaml
+#   → Creates isolated environment for Tucson USD
+# ============================================================
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: lbbs-DISTRICT_NAME
+  labels:
+    app: lbbs
+    district: DISTRICT_NAME
+    environment: production
+    managed-by: terraform
+  annotations:
+    description: "LBBS environment for DISTRICT_NAME school district"
+    contact: "admin@DISTRICT_NAME.org"
+
+---
+# Resource quota — limits what this district can use
+# Prevents one district from consuming all cluster resources
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: district-quota
+  namespace: lbbs-DISTRICT_NAME
+spec:
+  hard:
+    requests.cpu: "4"           # Can request up to 4 CPU cores
+    requests.memory: "8Gi"      # Can request up to 8 GB RAM
+    limits.cpu: "8"             # Hard limit: 8 CPU cores
+    limits.memory: "16Gi"       # Hard limit: 16 GB RAM
+    pods: "20"                  # Maximum 20 pods
+    services: "10"              # Maximum 10 services
+    persistentvolumeclaims: "5" # Maximum 5 storage volumes
+
+---
+# Limit range — defaults for individual pods
+# If a pod doesn't specify resources, these defaults apply
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: district-limits
+  namespace: lbbs-DISTRICT_NAME
+spec:
+  limits:
+    - default:
+        cpu: "500m"       # Default limit: 0.5 CPU
+        memory: "512Mi"   # Default limit: 512 MB RAM
+      defaultRequest:
+        cpu: "250m"       # Default request: 0.25 CPU
+        memory: "256Mi"   # Default request: 256 MB RAM
+      type: Container
+
+---
+# Network policy — isolate this district's network traffic
+# Pods in this namespace can ONLY talk to pods in SAME namespace
+# Cannot communicate with other districts' pods
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: district-isolation
+  namespace: lbbs-DISTRICT_NAME
+spec:
+  podSelector: {}  # Apply to ALL pods in this namespace
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    # Allow traffic from same namespace
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              district: DISTRICT_NAME
+    # Allow traffic from ingress controller (load balancer)
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              app: ingress-nginx
+  egress:
+    # Allow traffic to same namespace
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              district: DISTRICT_NAME
+    # Allow DNS resolution
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53
+    # Allow traffic to AWS services (RDS, S3, Secrets Manager)
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+      ports:
+        - protocol: TCP
+          port: 443
+        - protocol: TCP
+          port:
+

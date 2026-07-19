@@ -1,0 +1,799 @@
+# ============================================================
+# LBBS GitLab CI/CD — Complete DevSecOps Pipeline
+# ============================================================
+# SFWE 402 — DevSecOps Learning Pipeline
+# Author: Eliud Maina
+# University of Arizona — College of Engineering
+#
+# PIPELINE OVERVIEW:
+#   Stage 1: lint      — Code quality checks (2 jobs)
+#   Stage 2: test      — Unit tests (1 job)
+#   Stage 3: security  — Complete security suite (13 jobs)
+#   Stage 4: build     — Build verification (2 jobs)
+#   Stage 5: deploy    — AWS deployment (COMMENTED — enable when AWS ready)
+#
+# SECURITY TESTING COVERAGE:
+#   SAST:      Bandit (static code analysis)
+#   SCA:       pip-audit, npm audit, Snyk, Safety (dependency scanning)
+#   Secrets:   detect-secrets (credential scanning)
+#   License:   pip-licenses (license compliance)
+#   Quality:   SonarQube (code quality + security)
+#   DAST:      OWASP ZAP (dynamic application security testing)
+#   IaC:       Checkov (infrastructure as code scanning)
+#   Container: Hadolint (Dockerfile linting)
+#              Trivy (container vulnerability scanning)
+#
+# DEPLOYMENT (COMMENTED — FOR LEARNING):
+#   Terraform: Infrastructure as Code (AWS provisioning)
+#   Docker:    Build and push images to ECR
+#   ECS:       Deploy containers to AWS Fargate
+#   K8s:       Kubernetes deployment (alternative to ECS)
+#   ArgoCD:    GitOps continuous delivery
+# ============================================================
+
+stages:
+  - lint
+  - test
+  - security
+  - build
+  # - deploy          # ← UNCOMMENT when AWS is configured
+
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.pip-cache"
+  # ── AWS Variables (uncomment when AWS is configured) ──
+  # AWS_REGION: "us-west-2"
+  # AWS_ACCOUNT_ID: "123456789012"
+  # ECR_REGISTRY: "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+  # ECR_BACKEND_REPO: "${ECR_REGISTRY}/lbbs-backend"
+  # ECR_FRONTEND_REPO: "${ECR_REGISTRY}/lbbs-frontend"
+  # ECS_CLUSTER: "lbbs-production"
+  # ECS_BACKEND_SERVICE: "lbbs-backend-service"
+  # ECS_FRONTEND_SERVICE: "lbbs-frontend-service"
+  # KUBE_NAMESPACE: "lbbs-production"
+
+cache:
+  paths:
+    - .pip-cache/
+    - frontend/node_modules/
+
+# =============================================================
+# Stage 1: LINT — Code Quality
+# =============================================================
+backend-lint:
+  stage: lint
+  image: python:3.13-slim
+  script:
+    - cd backend
+    - pip install flake8 --quiet
+    - echo "=== Running Flake8 Linter ==="
+    - flake8 . --max-line-length=120 --exclude=__pycache__,migrations
+  allow_failure: false
+
+frontend-lint:
+  stage: lint
+  image: node:20-alpine
+  script:
+    - cd frontend
+    - npm ci --quiet
+    - echo "=== Running ESLint ==="
+    - npm run lint
+  allow_failure: false
+
+# =============================================================
+# Stage 2: TEST — Unit Tests
+# =============================================================
+backend-test:
+  stage: test
+  image: python:3.13-slim
+  variables:
+    DATABASE_URL: "sqlite:///./test.db"
+    SECRET_KEY: "test-secret-key-for-ci"
+    APP_ENV: "testing"
+  script:
+    - cd backend
+    - pip install -r requirements.txt --quiet
+    - pip install pytest pytest-cov --quiet
+    - echo "=== Running Backend Tests ==="
+    - python -m pytest tests/ -v --tb=short --junitxml=test-results.xml
+  artifacts:
+    reports:
+      junit: backend/test-results.xml
+    paths:
+      - backend/test-results.xml
+    when: always
+
+frontend-test:
+  stage: test
+  image: node:20-alpine
+  script:
+    - cd frontend
+    - npm ci --quiet
+    - echo "=== Running Frontend Tests (Vitest) ==="
+    - npm run test
+
+# =============================================================
+# Stage 3: SECURITY — DevSecOps Scanning
+# =============================================================
+
+# --- 3a. SAST: Static Application Security Testing ---
+sast-bandit:
+  stage: security
+  image: python:3.13-slim
+  script:
+    - pip install bandit --quiet
+    - cd backend
+    - echo "========================================="
+    - echo "  SAST — Bandit Security Scan (Python)"
+    - echo "========================================="
+    - bandit -r . -x ./tests,./migrations -f json -o bandit-report.json || true
+    - bandit -r . -x ./tests,./migrations -ll || true
+  artifacts:
+    paths:
+      - backend/bandit-report.json
+    when: always
+  allow_failure: true
+
+# --- 3b. SCA: Software Composition Analysis (Python) ---
+sca-python:
+  stage: security
+  image: python:3.13-slim
+  script:
+    - cd backend
+    - pip install -r requirements.txt --quiet
+    - pip install pip-audit --quiet
+    - echo "========================================="
+    - echo "  SCA — Python Dependency Vulnerability Scan"
+    - echo "========================================="
+    - pip-audit --format=json --output=pip-audit-report.json || true
+    - pip-audit --desc || true
+  artifacts:
+    paths:
+      - backend/pip-audit-report.json
+    when: always
+  allow_failure: true
+
+# --- 3c. SCA: Software Composition Analysis (Node.js) ---
+sca-node:
+  stage: security
+  image: node:20-alpine
+  script:
+    - cd frontend
+    - npm ci --quiet
+    - echo "========================================="
+    - echo "  SCA — Node.js Dependency Vulnerability Scan"
+    - echo "========================================="
+    - npm audit --json > npm-audit-report.json || true
+    - npm audit || true
+  artifacts:
+    paths:
+      - frontend/npm-audit-report.json
+    when: always
+  allow_failure: true
+
+# --- 3d. Secret Detection ---
+secret-detection:
+  stage: security
+  image: python:3.13-slim
+  script:
+    - pip install detect-secrets --quiet
+    - echo "========================================="
+    - echo "  SECRET DETECTION — Credential Scan"
+    - echo "========================================="
+    - detect-secrets scan --all-files --exclude-files '\.git/.*' --exclude-files 'node_modules/.*' --exclude-files 'package-lock\.json' > secrets-report.json || true
+    - cat secrets-report.json
+  artifacts:
+    paths:
+      - secrets-report.json
+    when: always
+  allow_failure: true
+
+# --- 3e. License Compliance ---
+license-check:
+  stage: security
+  image: python:3.13-slim
+  script:
+    - cd backend
+    - pip install -r requirements.txt --quiet
+    - pip install pip-licenses --quiet
+    - echo "========================================="
+    - echo "  LICENSE COMPLIANCE — Dependency Licenses"
+    - echo "========================================="
+    - pip-licenses --format=markdown --order=license
+    - echo "--- Checking for Copyleft Licenses ---"
+    - pip-licenses --format=csv | grep -i "GPL\|AGPL" && echo "WARNING Copyleft licenses detected!" || echo "OK No copyleft licenses found."
+  allow_failure: true
+
+# --- 3f. Safety Check ---
+safety-check:
+  stage: security
+  image: python:3.13-slim
+  script:
+    - cd backend
+    - pip install -r requirements.txt --quiet
+    - pip install safety --quiet
+    - echo "========================================="
+    - echo "  SAFETY — Python Vulnerability Database"
+    - echo "========================================="
+    - safety check --output json > safety-report.json || true
+    - safety check || true
+  artifacts:
+    paths:
+      - backend/safety-report.json
+    when: always
+  allow_failure: true
+
+# --- 3g. SonarQube — Code Quality & Security Analysis ---
+# Requires CI/CD variables: SONAR_HOST_URL (e.g. https://sonarcloud.io) and SONAR_TOKEN
+sonarqube-analysis:
+  stage: security
+  image: sonarsource/sonar-scanner-cli:latest
+  rules:
+    - if: $SONAR_HOST_URL && $SONAR_TOKEN
+    - when: never
+  variables:
+    SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"
+    GIT_DEPTH: "0"
+  cache:
+    key: "${CI_JOB_NAME}"
+    paths:
+      - .sonar/cache
+  script:
+    - echo "========================================="
+    - echo "  SONARQUBE — Code Quality & Security"
+    - echo "========================================="
+    - sonar-scanner
+      -Dsonar.projectKey=devsecops-lbbs-project_lbbs-project-sfwe-402_25ff994f-aacb-482e-b677-f4df8c33461b
+      -Dsonar.projectName=LBBS-SFWE402
+      -Dsonar.sources=backend/app
+      -Dsonar.tests=backend/tests
+      -Dsonar.python.version=3.13
+      -Dsonar.host.url=${SONAR_HOST_URL}
+      -Dsonar.token=${SONAR_TOKEN}
+      -Dsonar.sourceEncoding=UTF-8
+      -Dsonar.qualitygate.wait=true
+  allow_failure: true
+
+# --- 3h. Snyk — Python Vulnerability & License Scanning ---
+# Requires CI/CD variable SNYK_TOKEN. Job is skipped if unset (avoids auth/artifact failures).
+snyk-python:
+  stage: security
+  image: python:3.13-slim
+  rules:
+    - if: $SNYK_TOKEN
+    - when: never
+  script:
+    - pip install -r backend/requirements.txt --quiet
+    - apt-get update && apt-get install -y curl --quiet
+    - curl -sL https://static.snyk.io/cli/latest/snyk-linux -o /usr/local/bin/snyk
+    - chmod +x /usr/local/bin/snyk
+    - echo "========================================="
+    - echo "  SNYK — Python Vulnerability Scan"
+    - echo "========================================="
+    - cd backend
+    - snyk auth "$SNYK_TOKEN" || true
+    - snyk test --file=requirements.txt --json > snyk-python-report.json || echo '{"error":"snyk test failed"}' > snyk-python-report.json
+    - snyk test --file=requirements.txt --severity-threshold=high || true
+  artifacts:
+    paths:
+      - backend/snyk-python-report.json
+    when: always
+  allow_failure: true
+
+# --- 3i. Snyk — Node.js Vulnerability & License Scanning ---
+snyk-node:
+  stage: security
+  image: node:20-alpine
+  rules:
+    - if: $SNYK_TOKEN
+    - when: never
+  script:
+    - cd frontend
+    - npm ci --quiet
+    - npm install -g snyk
+    - echo "========================================="
+    - echo "  SNYK — Node.js Vulnerability Scan"
+    - echo "========================================="
+    - snyk auth "$SNYK_TOKEN" || true
+    - snyk test --json > snyk-node-report.json || echo '{"error":"snyk test failed"}' > snyk-node-report.json
+    - snyk test --severity-threshold=high || true
+  artifacts:
+    paths:
+      - frontend/snyk-node-report.json
+    when: always
+  allow_failure: true
+
+# --- 3j. DAST: OWASP ZAP — Dynamic Application Security Testing ---
+dast-zap:
+  stage: security
+  image: python:3.13-slim
+  variables:
+    DATABASE_URL: "sqlite:///./test.db"
+    SECRET_KEY: "test-secret-key-for-dast"
+    APP_ENV: "testing"
+  script:
+    - echo "========================================="
+    - echo "  DAST — OWASP ZAP Baseline Scan"
+    - echo "========================================="
+    - cd backend
+    - pip install -r requirements.txt --quiet
+    - uvicorn main:app --host 0.0.0.0 --port 8000 &
+    - sleep 5
+    - apt-get update && apt-get install -y curl --quiet
+    - curl -f http://localhost:8000/health && echo "App is running!" || exit 1
+    - apt-get install -y default-jre wget --quiet
+    - wget -q https://github.com/zaproxy/zaproxy/releases/download/v2.16.1/ZAP_2.16.1_Linux.tar.gz
+    - tar -xzf ZAP_2.16.1_Linux.tar.gz
+    - echo "--- Scanning API endpoints ---"
+    - ./ZAP_2.16.1/zap.sh -cmd
+      -quickurl http://localhost:8000
+      -quickout /tmp/zap-report.html
+      -quickprogress || true
+    - cp /tmp/zap-report.html ../zap-report.html || true
+    - curl -s http://localhost:8000/openapi.json > openapi.json
+    - echo "--- ZAP Scan Complete ---"
+  artifacts:
+    paths:
+      - zap-report.html
+    when: always
+  allow_failure: true
+
+# --- 3k. IaC Security: Checkov — Infrastructure as Code Scanning ---
+iac-checkov:
+  stage: security
+  image: python:3.13-slim
+  script:
+    - pip install checkov --quiet
+    - echo "========================================="
+    - echo "  IaC SECURITY — Checkov Scan"
+    - echo "========================================="
+    - echo "--- Scanning Dockerfiles ---"
+    - checkov --file backend/Dockerfile --framework dockerfile --output json > checkov-backend-dockerfile.json || true
+    - checkov --file backend/Dockerfile --framework dockerfile --compact || true
+    - echo "--- Scanning Frontend Dockerfile ---"
+    - checkov --file frontend/Dockerfile --framework dockerfile --output json > checkov-frontend-dockerfile.json || true
+    - checkov --file frontend/Dockerfile --framework dockerfile --compact || true
+    - echo "--- Scanning docker-compose.yml ---"
+    - checkov --file docker-compose.yml --framework docker-compose --output json > checkov-compose.json || true
+    - checkov --file docker-compose.yml --framework docker-compose --compact || true
+    - echo "--- Checkov Scan Complete ---"
+  artifacts:
+    paths:
+      - checkov-backend-dockerfile.json
+      - checkov-frontend-dockerfile.json
+      - checkov-compose.json
+    when: always
+  allow_failure: true
+
+# --- 3l. Container Security: Hadolint — Dockerfile Best Practices ---
+dockerfile-lint:
+  stage: security
+  image: hadolint/hadolint:latest-alpine
+  script:
+    - echo "========================================="
+    - echo "  CONTAINER — Hadolint Dockerfile Lint"
+    - echo "========================================="
+    - echo "--- Backend Dockerfile ---"
+    - hadolint backend/Dockerfile --format json > hadolint-backend.json || true
+    - hadolint backend/Dockerfile || true
+    - echo "--- Frontend Dockerfile ---"
+    - hadolint frontend/Dockerfile --format json > hadolint-frontend.json || true
+    - hadolint frontend/Dockerfile || true
+    - echo "--- Hadolint Complete ---"
+  artifacts:
+    paths:
+      - hadolint-backend.json
+      - hadolint-frontend.json
+    when: always
+  allow_failure: true
+
+# --- 3m. Container Security: Trivy — Image Vulnerability Scanning ---
+trivy-scan:
+  stage: security
+  image: python:3.13-slim
+  script:
+    - apt-get update && apt-get install -y curl --quiet
+    - curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
+    - echo "========================================="
+    - echo "  CONTAINER — Trivy Vulnerability Scan"
+    - echo "========================================="
+    - echo "--- Scanning Python base image ---"
+    - trivy image --severity HIGH,CRITICAL --format json --output trivy-python.json python:3.13-slim || true
+    - trivy image --severity HIGH,CRITICAL python:3.13-slim || true
+    - echo "--- Scanning Node base image ---"
+    - trivy image --severity HIGH,CRITICAL --format json --output trivy-node.json node:20-alpine || true
+    - trivy image --severity HIGH,CRITICAL node:20-alpine || true
+    - echo "--- Scanning project files ---"
+    - trivy fs --security-checks vuln,secret,config --format json --output trivy-fs.json . || true
+    - trivy fs --security-checks vuln,secret,config . || true
+    - echo "--- Trivy Scan Complete ---"
+  artifacts:
+    paths:
+      - trivy-python.json
+      - trivy-node.json
+      - trivy-fs.json
+    when: always
+  allow_failure: true
+
+# =============================================================
+# Stage 4: BUILD — Verify Applications Build
+# =============================================================
+backend-build:
+  stage: build
+  image: python:3.13-slim
+  variables:
+    DATABASE_URL: "sqlite:///./test.db"
+    SECRET_KEY: "test-secret-key-for-ci"
+    APP_ENV: "testing"
+  script:
+    - cd backend
+    - pip install -r requirements.txt --quiet
+    - echo "=== Verifying Backend Build ==="
+    - python -c "from main import app; print('Backend builds successfully')"
+  only:
+    - main
+
+frontend-build:
+  stage: build
+  image: node:20-alpine
+  script:
+    - cd frontend
+    - npm ci --quiet
+    - echo "=== Building Frontend ==="
+    - npm run build
+    - echo "Frontend builds successfully"
+  only:
+    - main
+
+# =============================================================
+# Stage 5: DEPLOY — AWS Deployment (COMMENTED FOR LEARNING)
+# =============================================================
+# ┌─────────────────────────────────────────────────────────┐
+# │  INSTRUCTIONS TO ENABLE AWS DEPLOYMENT:                  │
+# │                                                          │
+# │  1. Create AWS account or use AWS Academy                │
+# │  2. Add these GitLab CI/CD variables:                    │
+# │     - AWS_ACCESS_KEY_ID                                  │
+# │     - AWS_SECRET_ACCESS_KEY                              │
+# │     - AWS_REGION (e.g., us-west-2)                       │
+# │     - AWS_ACCOUNT_ID (your 12-digit account ID)          │
+# │  3. Create ECR repositories:                             │
+# │     aws ecr create-repository --repository-name lbbs-backend  │
+# │     aws ecr create-repository --repository-name lbbs-frontend │
+# │  4. Create ECS cluster:                                  │
+# │     aws ecs create-cluster --cluster-name lbbs-production│
+# │  5. Uncomment the deploy stage above and jobs below      │
+# │  6. Push to main branch to trigger deployment            │
+# └─────────────────────────────────────────────────────────┘
+
+# ── 5a. TERRAFORM — Infrastructure as Code ──
+# PURPOSE: Creates/manages all AWS resources automatically
+# REQUIRES: terraform/ directory with .tf files, AWS credentials
+#
+# terraform-plan:
+#   stage: deploy
+#   image: hashicorp/terraform:latest
+#   script:
+#     - echo "========================================="
+#     - echo "  TERRAFORM — Infrastructure Plan"
+#     - echo "========================================="
+#     - cd terraform
+#     - terraform init
+#     # Show what will be created/changed WITHOUT applying
+#     - terraform plan -out=tfplan
+#     - echo "--- Review the plan above ---"
+#     - echo "--- If approved, terraform-apply will execute it ---"
+#   artifacts:
+#     paths:
+#       - terraform/tfplan
+#   only:
+#     - main
+#   # Manual approval required — click to run
+#   when: manual
+#
+# terraform-apply:
+#   stage: deploy
+#   image: hashicorp/terraform:latest
+#   script:
+#     - echo "========================================="
+#     - echo "  TERRAFORM — Apply Infrastructure"
+#     - echo "========================================="
+#     - cd terraform
+#     - terraform init
+#     # Apply the approved plan
+#     - terraform apply -auto-approve tfplan
+#     - echo "--- Infrastructure updated ---"
+#     - terraform output
+#   dependencies:
+#     - terraform-plan
+#   only:
+#     - main
+#   # Manual approval — prevents accidental infrastructure changes
+#   when: manual
+#
+# # ── TERRAFORM DRIFT DETECTION ──
+# # Runs on schedule to detect unauthorized changes
+# terraform-drift-check:
+#   stage: deploy
+#   image: hashicorp/terraform:latest
+#   script:
+#     - echo "========================================="
+#     - echo "  TERRAFORM — Drift Detection"
+#     - echo "========================================="
+#     - cd terraform
+#     - terraform init
+#     - terraform plan -detailed-exitcode
+#     # Exit code 0 = no changes (in sync)
+#     # Exit code 2 = drift detected!
+#     - if [ $? -eq 2 ]; then
+#         echo "⚠️ DRIFT DETECTED! Infrastructure doesn't match code!";
+#         echo "Someone changed AWS resources outside of Terraform.";
+#         echo "Run 'terraform apply' to fix, or update .tf files.";
+#         exit 1;
+#       else
+#         echo "✅ No drift — infrastructure matches code.";
+#       fi
+#   only:
+#     - schedules
+#   # Set up a scheduled pipeline in GitLab:
+#   # Settings → CI/CD → Pipeline schedules → Every hour
+
+# ── TERRAFORM SECURITY SCANNING ──
+# tfsec-scan:
+#   stage: security
+#   image: aquasec/tfsec:latest
+#   script:
+#     - echo "========================================="
+#     - echo "  TFSEC — Terraform Security Scan"
+#     - echo "========================================="
+#     - tfsec terraform/ --format json > tfsec-report.json || true
+#     - tfsec terraform/ || true
+#     # Checks for:
+#     #   ❌ S3 buckets without encryption
+#     #   ❌ Security groups open to 0.0.0.0/0
+#     #   ❌ RDS without encryption at rest
+#     #   ❌ Missing CloudTrail logging
+#     #   ❌ IAM policies too permissive
+#   artifacts:
+#     paths:
+#       - tfsec-report.json
+#     when: always
+#   allow_failure: true
+
+# ── 5b. DOCKER BUILD & PUSH TO ECR ──
+# PURPOSE: Builds Docker images and pushes to AWS container registry
+# REQUIRES: AWS credentials, ECR repositories created
+#
+# docker-build-push:
+#   stage: deploy
+#   image: docker:latest
+#   services:
+#     - docker:dind
+#   variables:
+#     DOCKER_TLS_CERTDIR: ""
+#   script:
+#     - echo "========================================="
+#     - echo "  DOCKER — Build & Push to ECR"
+#     - echo "========================================="
+#     # Login to ECR
+#     - apk add --no-cache aws-cli
+#     - aws ecr get-login-password --region ${AWS_REGION}
+#       | docker login --username AWS --password-stdin ${ECR_REGISTRY}
+#     #
+#     # Build and push backend image
+#     - echo "--- Building backend image ---"
+#     - docker build -t ${ECR_BACKEND_REPO}:${CI_COMMIT_SHA} ./backend
+#     - docker tag ${ECR_BACKEND_REPO}:${CI_COMMIT_SHA} ${ECR_BACKEND_REPO}:latest
+#     - docker push ${ECR_BACKEND_REPO}:${CI_COMMIT_SHA}
+#     - docker push ${ECR_BACKEND_REPO}:latest
+#     #
+#     # Build and push frontend image
+#     - echo "--- Building frontend image ---"
+#     - docker build -t ${ECR_FRONTEND_REPO}:${CI_COMMIT_SHA} ./frontend
+#     - docker tag ${ECR_FRONTEND_REPO}:${CI_COMMIT_SHA} ${ECR_FRONTEND_REPO}:latest
+#     - docker push ${ECR_FRONTEND_REPO}:${CI_COMMIT_SHA}
+#     - docker push ${ECR_FRONTEND_REPO}:latest
+#     #
+#     - echo "--- Images pushed to ECR ---"
+#     - echo "Backend:  ${ECR_BACKEND_REPO}:${CI_COMMIT_SHA}"
+#     - echo "Frontend: ${ECR_FRONTEND_REPO}:${CI_COMMIT_SHA}"
+#   only:
+#     - main
+
+# ── 5c. DEPLOY TO AWS ECS (Fargate) ──
+# PURPOSE: Updates running containers with new Docker images
+# REQUIRES: ECS cluster and services created (via Terraform)
+#
+# deploy-ecs:
+#   stage: deploy
+#   image: amazon/aws-cli:latest
+#   script:
+#     - echo "========================================="
+#     - echo "  AWS ECS — Deploy to Fargate"
+#     - echo "========================================="
+#     #
+#     # Force new deployment — pulls latest image
+#     - echo "--- Deploying backend ---"
+#     - aws ecs update-service
+#       --cluster ${ECS_CLUSTER}
+#       --service ${ECS_BACKEND_SERVICE}
+#       --force-new-deployment
+#       --region ${AWS_REGION}
+#     #
+#     - echo "--- Deploying frontend ---"
+#     - aws ecs update-service
+#       --cluster ${ECS_CLUSTER}
+#       --service ${ECS_FRONTEND_SERVICE}
+#       --force-new-deployment
+#       --region ${AWS_REGION}
+#     #
+#     # Wait for deployment to stabilize
+#     - echo "--- Waiting for backend to stabilize ---"
+#     - aws ecs wait services-stable
+#       --cluster ${ECS_CLUSTER}
+#       --services ${ECS_BACKEND_SERVICE}
+#       --region ${AWS_REGION}
+#     #
+#     - echo "--- Deployment complete! ---"
+#     - echo "Backend:  Running on ECS Fargate"
+#     - echo "Frontend: Running on ECS Fargate"
+#   dependencies:
+#     - docker-build-push
+#   only:
+#     - main
+#   # Manual deployment — click to deploy (safety net)
+#   when: manual
+
+# ── 5d. DEPLOY TO KUBERNETES (Alternative to ECS) ──
+# PURPOSE: Deploys to Kubernetes cluster instead of ECS
+# REQUIRES: kubectl configured, Kubernetes cluster running
+#
+# deploy-kubernetes:
+#   stage: deploy
+#   image: bitnami/kubectl:latest
+#   script:
+#     - echo "========================================="
+#     - echo "  KUBERNETES — Deploy to Cluster"
+#     - echo "========================================="
+#     #
+#     # Update image tags in deployment files
+#     - sed -i "s|lbbs-backend:latest|${ECR_BACKEND_REPO}:${CI_COMMIT_SHA}|g" k8s/backend-deployment.yaml
+#     - sed -i "s|lbbs-frontend:latest|${ECR_FRONTEND_REPO}:${CI_COMMIT_SHA}|g" k8s/frontend-deployment.yaml
+#     #
+#     # Apply Kubernetes manifests
+#     - echo "--- Applying namespace ---"
+#     - kubectl apply -f k8s/namespace.yaml
+#     - echo "--- Applying secrets ---"
+#     - kubectl apply -f k8s/secrets.yaml
+#     - echo "--- Deploying backend ---"
+#     - kubectl apply -f k8s/backend-deployment.yaml
+#     - kubectl apply -f k8s/backend-service.yaml
+#     - echo "--- Deploying frontend ---"
+#     - kubectl apply -f k8s/frontend-deployment.yaml
+#     - kubectl apply -f k8s/frontend-service.yaml
+#     - echo "--- Applying auto-scaling ---"
+#     - kubectl apply -f k8s/hpa.yaml
+#     #
+#     # Wait for rollout
+#     - echo "--- Waiting for rollout ---"
+#     - kubectl rollout status deployment/lbbs-backend -n ${KUBE_NAMESPACE} --timeout=300s
+#     - kubectl rollout status deployment/lbbs-frontend -n ${KUBE_NAMESPACE} --timeout=300s
+#     #
+#     - echo "--- Kubernetes deployment complete! ---"
+#     - kubectl get pods -n ${KUBE_NAMESPACE}
+#     - kubectl get services -n ${KUBE_NAMESPACE}
+#   only:
+#     - main
+#   when: manual
+
+# ── 5e. ARGOCD GITOPS SYNC ──
+# PURPOSE: Triggers ArgoCD to sync Kubernetes state with Git
+# REQUIRES: ArgoCD installed on Kubernetes cluster
+#
+# argocd-sync:
+#   stage: deploy
+#   image: argoproj/argocd:latest
+#   script:
+#     - echo "========================================="
+#     - echo "  ARGOCD — GitOps Sync"
+#     - echo "========================================="
+#     #
+#     # Login to ArgoCD
+#     - argocd login ${ARGOCD_SERVER}
+#       --username admin
+#       --password ${ARGOCD_PASSWORD}
+#       --insecure
+#     #
+#     # Sync the application (force Kubernetes to match Git)
+#     - echo "--- Syncing LBBS application ---"
+#     - argocd app sync lbbs-production --force
+#     #
+#     # Wait for sync to complete
+#     - argocd app wait lbbs-production --timeout 300
+#     #
+#     # Check health
+#     - echo "--- Application health ---"
+#     - argocd app get lbbs-production
+#     #
+#     # WHAT ARGOCD DOES:
+#     # 1. Reads k8s/ folder from Git (the DESIRED state)
+#     # 2. Compares to what's running in Kubernetes (ACTUAL state)
+#     # 3. If different → updates Kubernetes to match Git
+#     # 4. If someone manually changed Kubernetes → reverts it!
+#     # 5. Continuous monitoring — checks every 3 minutes
+#     #
+#     # This ensures:
+#     #   Git = single source of truth
+#     #   No manual kubectl changes survive
+#     #   Everything auditable through Git history
+#   only:
+#     - main
+#   when: manual
+
+# ── 5f. POST-DEPLOYMENT HEALTH CHECK ──
+# PURPOSE: Verifies the deployed app is working correctly
+# REQUIRES: App deployed to a reachable URL
+#
+# health-check:
+#   stage: deploy
+#   image: curlimages/curl:latest
+#   script:
+#     - echo "========================================="
+#     - echo "  HEALTH CHECK — Post-Deployment"
+#     - echo "========================================="
+#     #
+#     # Check backend health endpoint
+#     - echo "--- Checking backend ---"
+#     - curl -f https://api.lbbs.lifebeyondthebooksaz.org/health || exit 1
+#     - echo "Backend: HEALTHY ✅"
+#     #
+#     # Check frontend loads
+#     - echo "--- Checking frontend ---"
+#     - curl -f https://lbbs.lifebeyondthebooksaz.org || exit 1
+#     - echo "Frontend: HEALTHY ✅"
+#     #
+#     # Check API responds
+#     - echo "--- Checking API ---"
+#     - curl -f https://api.lbbs.lifebeyondthebooksaz.org/docs || exit 1
+#     - echo "API Docs: HEALTHY ✅"
+#     #
+#     - echo "--- All health checks passed! ---"
+#   dependencies:
+#     - deploy-ecs    # or deploy-kubernetes
+#   only:
+#     - main
+#   when: manual
+
+# ── 5g. ROLLBACK (Emergency) ──
+# PURPOSE: Quickly revert to the previous working version
+# REQUIRES: Previous Docker image tags stored
+#
+# rollback:
+#   stage: deploy
+#   image: amazon/aws-cli:latest
+#   script:
+#     - echo "========================================="
+#     - echo "  ⚠️ ROLLBACK — Reverting to Previous Version"
+#     - echo "========================================="
+#     #
+#     # ECS Rollback: Re-deploy previous task definition
+#     - PREV_TASK=$(aws ecs describe-services
+#       --cluster ${ECS_CLUSTER}
+#       --services ${ECS_BACKEND_SERVICE}
+#       --query 'services[0].deployments[1].taskDefinition'
+#       --output text)
+#     - echo "Rolling back to: ${PREV_TASK}"
+#     - aws ecs update-service
+#       --cluster ${ECS_CLUSTER}
+#       --service ${ECS_BACKEND_SERVICE}
+#       --task-definition ${PREV_TASK}
+#       --region ${AWS_REGION}
+#     #
+#     # Kubernetes Rollback (alternative):
+#     # kubectl rollout undo deployment/lbbs-backend -n ${KUBE_NAMESPACE}
+#     # kubectl rollout undo deployment/lbbs-frontend -n ${KUBE_NAMESPACE}
+#     #
+#     - echo "--- Rollback complete! ---"
+#   only:
+#     - main
+#   # MANUAL ONLY — emergency use
+#   when: manual

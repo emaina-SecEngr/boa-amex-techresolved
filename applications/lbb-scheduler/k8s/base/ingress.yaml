@@ -1,0 +1,58 @@
+# ============================================================
+# LBBS Kubernetes — Ingress (Traffic Routing)
+# ============================================================
+# Routes external traffic to the correct district's backend.
+#
+# HOW IT WORKS:
+#   tucson.lbbs.org    → lbbs-tucson-usd namespace → backend pods
+#   sunnyside.lbbs.org → lbbs-sunnyside-usd namespace → backend pods
+#   amphi.lbbs.org     → lbbs-amphitheater-usd namespace → backend pods
+#
+# Each district gets its own subdomain.
+# The Ingress controller routes based on the hostname.
+# ============================================================
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: lbbs-ingress
+  namespace: lbbs-DISTRICT_NAME
+  labels:
+    app: lbbs
+    district: DISTRICT_NAME
+  annotations:
+    # Use AWS ALB as the ingress controller
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    # SSL/TLS
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS": 443}]'
+    alb.ingress.kubernetes.io/ssl-redirect: "443"
+    alb.ingress.kubernetes.io/certificate-arn: "ACM_CERTIFICATE_ARN"
+    # WAF
+    alb.ingress.kubernetes.io/wafv2-acl-arn: "WAF_ACL_ARN"
+    # Health check
+    alb.ingress.kubernetes.io/healthcheck-path: /health
+    alb.ingress.kubernetes.io/healthcheck-interval-seconds: "30"
+spec:
+  rules:
+    # District-specific subdomain
+    - host: "DISTRICT_NAME.lbbs.lifebeyondthebooksaz.org"
+      http:
+        paths:
+          # API requests go to backend
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: lbbs-backend-service
+                port:
+                  number: 8000
+          # Everything else goes to frontend
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: lbbs-frontend-service
+                port:
+                  number: 80

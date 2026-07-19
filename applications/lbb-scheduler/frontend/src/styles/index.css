@@ -1,0 +1,73 @@
+/* =============================================================
+ * LBBS Global Styles
+ * Tailwind CSS is the primary styling mechanism.
+ * These three lines load Tailwind's utility classes.
+ * Add custom global styles below the Tailwind directives.
+ * ============================================================= */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ---------------------------------------------------------------
+ * Custom base styles
+ * @layer base means these styles apply to raw HTML elements.
+ * They set defaults so you don't repeat yourself everywhere.
+ * --------------------------------------------------------------- */
+@layer base {
+  body {
+    @apply text-gray-800 antialiased;
+  }
+
+  h1 {
+    @apply text-3xl font-bold text-gray-900;
+  }
+
+  h2 {
+    @apply text-2xl font-semibold text-gray-900;
+  }
+
+  h3 {
+    @apply text-xl font-semibold text-gray-800;
+  }
+}
+
+/* ---------------------------------------------------------------
+ * Reusable component classes
+ * @layer components means these are custom CSS classes you can
+ * use anywhere with className="btn-primary", className="card", etc.
+ *
+ * The @apply directive uses Tailwind utility classes to build
+ * your own custom classes. This avoids repeating long chains
+ * of Tailwind classes across many components.
+ * --------------------------------------------------------------- */
+@layer components {
+  /* Primary button style — blue background, white text */
+  .btn-primary {
+    @apply bg-lbb-primary text-white px-6 py-2 rounded-lg
+           hover:bg-blue-700 transition-colors duration-200
+           font-medium focus:outline-none focus:ring-2
+           focus:ring-blue-500 focus:ring-offset-2;
+  }
+
+  /* Secondary button style — white with blue border */
+  .btn-secondary {
+    @apply bg-white text-lbb-primary border border-lbb-primary
+           px-6 py-2 rounded-lg hover:bg-blue-50
+           transition-colors duration-200 font-medium;
+  }
+
+  /* Form input style — consistent across all forms */
+  .input-field {
+    @apply w-full px-4 py-2 border border-gray-300 rounded-lg
+           focus:outline-none focus:ring-2 focus:ring-blue-500
+           focus:border-transparent transition-all duration-200;
+  }
+
+  /* Card container — used for dashboard widgets, content boxes */
+  .card {
+    @apply bg-white rounded-xl shadow-sm border border-gray-100
+           p-6 hover:shadow-md transition-shadow duration-200;
+  }
+}
+

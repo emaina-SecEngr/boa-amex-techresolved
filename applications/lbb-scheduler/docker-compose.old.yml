@@ -1,0 +1,74 @@
+# ============================================================
+# LBBS Docker Compose — Development Environment
+# ============================================================
+# Runs the full stack with one command:
+#   docker-compose up --build
+#
+# Services:
+#   backend  → FastAPI on port 8000
+#   frontend → React/Nginx on port 5173
+#   db       → PostgreSQL on port 5432
+# ============================================================
+
+version: "3.9"
+
+services:
+  # --- PostgreSQL Database ---
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: lbbs_dev
+      POSTGRES_USER: lbbs_user
+      POSTGRES_PASSWORD: lbbs_dev_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lbbs_user -d lbbs_dev"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # --- FastAPI Backend ---
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://lbbs_user:lbbs_dev_password@db:5432/lbbs_dev
+      SECRET_KEY: docker-dev-secret-key-change-in-production
+      APP_ENV: development
+      DEBUG: "true"
+      SEED_DEV_ADMIN: "true"
+      CORS_ORIGINS: http://localhost:5173,http://localhost:80
+      SMTP_HOST: "mailcatcher"
+      SMTP_PORT: "1025"
+      SMTP_TLS: "false"
+      EMAIL_FROM: "noreply@lifebeyondthebooksaz.org"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # --- React Frontend ---
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  mailcatcher:
+    image: schickling/mailcatcher
+    ports:
+      - "1080:1080"
+      - "1025:1025"
+
+volumes:
+  postgres_data:

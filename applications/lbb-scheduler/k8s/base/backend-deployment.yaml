@@ -1,0 +1,115 @@
+# ============================================================
+# LBBS Kubernetes — Backend Deployment (Per District)
+# ============================================================
+# Each district gets its own backend deployment.
+# The backend connects to a district-specific database schema.
+#
+# WHAT THIS CREATES:
+#   2 pods running FastAPI, each with:
+#     - 0.25 CPU, 256 MB RAM (request)
+#     - 0.5 CPU, 512 MB RAM (limit)
+#     - Health checks (readiness + liveness)
+#     - Environment variables from district secrets
+#     - Auto-restart if a pod crashes
+# ============================================================
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lbbs-backend
+  namespace: lbbs-DISTRICT_NAME
+  labels:
+    app: lbbs-backend
+    district: DISTRICT_NAME
+spec:
+  replicas: 2  # 2 pods for high availability
+  selector:
+    matchLabels:
+      app: lbbs-backend
+      district: DISTRICT_NAME
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1        # Create 1 new pod before killing old
+      maxUnavailable: 0  # Never have 0 pods running
+  template:
+    metadata:
+      labels:
+        app: lbbs-backend
+        district: DISTRICT_NAME
+    spec:
+      serviceAccountName: lbbs-backend-sa
+
+      containers:
+        - name: lbbs-backend
+          image: ECR_REGISTRY/lbbs-backend:latest
+          ports:
+            - containerPort: 8000
+              protocol: TCP
+
+          # Environment variables
+          env:
+            - name: APP_ENV
+              value: "production"
+            - name: DISTRICT_ID
+              value: "DISTRICT_NAME"
+            - name: LOG_LEVEL
+              value: "INFO"
+
+          # Secrets from Kubernetes Secrets (district-specific)
+          envFrom:
+            - secretRef:
+                name: lbbs-district-secrets
+
+          # Resource limits
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+
+          # Readiness probe — is the pod ready for traffic?
+          # ALB only sends traffic to pods that pass this check
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            failureThreshold: 3
+
+          # Liveness probe — is the pod still alive?
+          # Kubernetes restarts the pod if this fails
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            failureThreshold: 3
+
+          # Startup probe — give the app time to start
+          startupProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 30  # 30 × 5s = 150s max startup time
+
+      # Pod anti-affinity — spread pods across different nodes
+      # If Node A dies, pods on Node B keep running
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - lbbs-backend
+                topologyKey: kubernetes.io/hostname
