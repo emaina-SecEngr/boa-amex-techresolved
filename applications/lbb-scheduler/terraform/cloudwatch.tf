@@ -11,7 +11,7 @@ resource "aws_cloudwatch_metric_alarm" "backend_cpu_high" {
   evaluation_periods  = 2
   metric_name         = "CPUUtilization"
   namespace           = "AWS/ECS"
-  period              = 300  # 5 minutes
+  period              = 300 # 5 minutes
   statistic           = "Average"
   threshold           = 80
   alarm_description   = "Backend CPU above 80% for 10 minutes"

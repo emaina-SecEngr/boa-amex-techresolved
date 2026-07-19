@@ -9,7 +9,7 @@ resource "aws_acm_certificate" "lbbs" {
   validation_method = "DNS"
 
   subject_alternative_names = [
-    "*.${var.domain_name}",  # Wildcard: api.lbbs.org, www.lbbs.org, etc.
+    "*.${var.domain_name}", # Wildcard: api.lbbs.org, www.lbbs.org, etc.
   ]
 
   lifecycle {

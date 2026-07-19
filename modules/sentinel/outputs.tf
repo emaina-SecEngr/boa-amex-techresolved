@@ -20,13 +20,13 @@ output "sqs_queue_urls" {
 output "sentinel_status" {
   description = "Sentinel connector configuration summary"
   value = {
-    enabled            = var.enable_sentinel
-    reader_role        = var.enable_sentinel ? "CREATED" : "NOT CREATED - enable_sentinel = false"
-    cloudtrail_queue   = var.enable_sentinel && var.enable_cloudtrail_connector ? "CREATED" : "NOT CREATED"
-    guardduty_queue    = var.enable_sentinel && var.enable_guardduty_connector ? "CREATED" : "NOT CREATED"
-    security_hub_queue = var.enable_sentinel && var.enable_security_hub_connector ? "CREATED" : "NOT CREATED"
+    enabled             = var.enable_sentinel
+    reader_role         = var.enable_sentinel ? "CREATED" : "NOT CREATED - enable_sentinel = false"
+    cloudtrail_queue    = var.enable_sentinel && var.enable_cloudtrail_connector ? "CREATED" : "NOT CREATED"
+    guardduty_queue     = var.enable_sentinel && var.enable_guardduty_connector ? "CREATED" : "NOT CREATED"
+    security_hub_queue  = var.enable_sentinel && var.enable_security_hub_connector ? "CREATED" : "NOT CREATED"
     vpc_flow_logs_queue = var.enable_sentinel && var.enable_vpc_flow_logs_connector ? "CREATED" : "NOT CREATED"
-    azure_subscription = "DISABLED - restore Azure for Students subscription first"
+    azure_subscription  = "DISABLED - restore Azure for Students subscription first"
   }
 }
 

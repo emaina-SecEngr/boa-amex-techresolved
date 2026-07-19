@@ -530,8 +530,8 @@ module "soar" {
   forensics_bucket_name = ""
 
   # Alerting
-  security_alert_email    = var.security_alert_email
-  critical_alert_email    = var.security_alert_email
+  security_alert_email     = var.security_alert_email
+  critical_alert_email     = var.security_alert_email
   existing_alert_topic_arn = ""
 
   # Sentinel

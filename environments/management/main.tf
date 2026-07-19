@@ -153,18 +153,22 @@ module "aws_organization" {
 
   # Account creation — all false until deliberately enabled
   # Enable audit account FIRST before any workload accounts
-  create_audit_account        = true
-  create_pci_cde_account      = false
-  create_core_banking_account = false
-  create_dev_account          = false
-  create_pipeline_account     = false
+  create_audit_account           = true
+  create_pci_cde_account         = true
+  create_core_banking_account    = true
+  create_dev_account             = true
+  create_pipeline_account        = true
+  create_fraud_detection_account = true
+  create_customer_portal_account = true
+  create_data_analytics_account  = true
+  create_bi_reporting_account    = true
 
   # Delegated administrator — enable after Phase 2 is deployed
   # Security Tooling must have GuardDuty/SecHub running first
   enable_guardduty_delegated_admin   = true
   enable_securityhub_delegated_admin = true
-  enable_detective_delegated_admin   = false
-  enable_config_delegated_admin      = false
+  enable_detective_delegated_admin   = true
+  enable_config_delegated_admin      = true
 
   common_tags = var.common_tags
 }

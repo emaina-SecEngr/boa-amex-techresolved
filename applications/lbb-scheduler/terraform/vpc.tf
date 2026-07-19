@@ -237,196 +237,196 @@ resource "aws_security_group" "database" {
   tags = { Name = "${var.project_name}-database-sg" }
 
   # ── Security Group 4: Bastion Host (SSH Jump Box) ──
-# A bastion is the ONLY way to SSH into private resources.
-# You SSH into the bastion first, then from bastion to backend.
-# This prevents direct SSH access from the internet to any server.
-resource "aws_security_group" "bastion" {
-  name        = "${var.project_name}-bastion-sg"
-  description = "SSH access from admin IPs only"
-  vpc_id      = aws_vpc.lbbs.id
+  # A bastion is the ONLY way to SSH into private resources.
+  # You SSH into the bastion first, then from bastion to backend.
+  # This prevents direct SSH access from the internet to any server.
+  resource "aws_security_group" "bastion" {
+    name        = "${var.project_name}-bastion-sg"
+    description = "SSH access from admin IPs only"
+    vpc_id      = aws_vpc.lbbs.id
 
-  # Only allow SSH from YOUR specific IP address
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = var.admin_ip_addresses
-    description = "SSH from admin IPs only"
+    # Only allow SSH from YOUR specific IP address
+    ingress {
+      from_port   = 22
+      to_port     = 22
+      protocol    = "tcp"
+      cidr_blocks = var.admin_ip_addresses
+      description = "SSH from admin IPs only"
+    }
+
+    egress {
+      from_port   = 0
+      to_port     = 0
+      protocol    = "-1"
+      cidr_blocks = ["0.0.0.0/0"]
+    }
+
+    tags = { Name = "${var.project_name}-bastion-sg" }
   }
 
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
+  # ── Security Group 5: Frontend Containers ──
+  # Separate from backend — frontend only serves static files
+  resource "aws_security_group" "frontend" {
+    name        = "${var.project_name}-frontend-sg"
+    description = "Allow traffic only from ALB to frontend containers"
+    vpc_id      = aws_vpc.lbbs.id
+
+    ingress {
+      from_port       = 5173
+      to_port         = 5173
+      protocol        = "tcp"
+      security_groups = [aws_security_group.alb.id]
+      description     = "React dev server from ALB only"
+    }
+
+    ingress {
+      from_port       = 80
+      to_port         = 80
+      protocol        = "tcp"
+      security_groups = [aws_security_group.alb.id]
+      description     = "Nginx from ALB only"
+    }
+
+    egress {
+      from_port   = 0
+      to_port     = 0
+      protocol    = "-1"
+      cidr_blocks = ["0.0.0.0/0"]
+    }
+
+    tags = { Name = "${var.project_name}-frontend-sg" }
   }
 
-  tags = { Name = "${var.project_name}-bastion-sg" }
-}
+  # ── Security Group 6: Redis Cache ──
+  # If we add caching for session storage or API responses
+  resource "aws_security_group" "redis" {
+    name        = "${var.project_name}-redis-sg"
+    description = "Redis access only from backend containers"
+    vpc_id      = aws_vpc.lbbs.id
 
-# ── Security Group 5: Frontend Containers ──
-# Separate from backend — frontend only serves static files
-resource "aws_security_group" "frontend" {
-  name        = "${var.project_name}-frontend-sg"
-  description = "Allow traffic only from ALB to frontend containers"
-  vpc_id      = aws_vpc.lbbs.id
+    ingress {
+      from_port       = 6379
+      to_port         = 6379
+      protocol        = "tcp"
+      security_groups = [aws_security_group.backend.id]
+      description     = "Redis from backend only"
+    }
 
-  ingress {
-    from_port       = 5173
-    to_port         = 5173
-    protocol        = "tcp"
-    security_groups = [aws_security_group.alb.id]
-    description     = "React dev server from ALB only"
+    egress {
+      from_port   = 0
+      to_port     = 0
+      protocol    = "-1"
+      cidr_blocks = ["0.0.0.0/0"]
+    }
+
+    tags = { Name = "${var.project_name}-redis-sg" }
   }
 
-  ingress {
-    from_port       = 80
-    to_port         = 80
-    protocol        = "tcp"
-    security_groups = [aws_security_group.alb.id]
-    description     = "Nginx from ALB only"
+  # ── Security Group 7: VPC Endpoints ──
+  # Allows private subnets to reach AWS services (S3, Secrets Manager)
+  # WITHOUT going through the internet or NAT Gateway
+  resource "aws_security_group" "vpc_endpoints" {
+    name        = "${var.project_name}-vpc-endpoints-sg"
+    description = "Allow backend to reach AWS services via private link"
+    vpc_id      = aws_vpc.lbbs.id
+
+    ingress {
+      from_port       = 443
+      to_port         = 443
+      protocol        = "tcp"
+      security_groups = [aws_security_group.backend.id]
+      description     = "HTTPS from backend to AWS services"
+    }
+
+    egress {
+      from_port   = 0
+      to_port     = 0
+      protocol    = "-1"
+      cidr_blocks = ["0.0.0.0/0"]
+    }
+
+    tags = { Name = "${var.project_name}-vpc-endpoints-sg" }
   }
 
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
+  # ── Security Group 8: Monitoring (Prometheus/Grafana) ──
+  # For monitoring dashboards — only accessible from admin IPs
+  resource "aws_security_group" "monitoring" {
+    name        = "${var.project_name}-monitoring-sg"
+    description = "Monitoring dashboard access from admin IPs"
+    vpc_id      = aws_vpc.lbbs.id
+
+    # Grafana dashboard
+    ingress {
+      from_port   = 3000
+      to_port     = 3000
+      protocol    = "tcp"
+      cidr_blocks = var.admin_ip_addresses
+      description = "Grafana from admin IPs"
+    }
+
+    # Prometheus
+    ingress {
+      from_port   = 9090
+      to_port     = 9090
+      protocol    = "tcp"
+      cidr_blocks = var.admin_ip_addresses
+      description = "Prometheus from admin IPs"
+    }
+
+    # Accept metrics from backend containers
+    ingress {
+      from_port       = 9090
+      to_port         = 9090
+      protocol        = "tcp"
+      security_groups = [aws_security_group.backend.id]
+      description     = "Metrics from backend"
+    }
+
+    egress {
+      from_port   = 0
+      to_port     = 0
+      protocol    = "-1"
+      cidr_blocks = ["0.0.0.0/0"]
+    }
+
+    tags = { Name = "${var.project_name}-monitoring-sg" }
   }
 
-  tags = { Name = "${var.project_name}-frontend-sg" }
-}
+  # ── Security Group 9: CI/CD Runner ──
+  # If we run a GitLab runner in AWS for faster pipelines
+  resource "aws_security_group" "cicd_runner" {
+    name        = "${var.project_name}-cicd-runner-sg"
+    description = "GitLab CI/CD runner — outbound only, no inbound"
+    vpc_id      = aws_vpc.lbbs.id
 
-# ── Security Group 6: Redis Cache ──
-# If we add caching for session storage or API responses
-resource "aws_security_group" "redis" {
-  name        = "${var.project_name}-redis-sg"
-  description = "Redis access only from backend containers"
-  vpc_id      = aws_vpc.lbbs.id
+    # NO ingress rules — nobody can connect TO the runner
+    # Runner only makes OUTBOUND connections
 
-  ingress {
-    from_port       = 6379
-    to_port         = 6379
-    protocol        = "tcp"
-    security_groups = [aws_security_group.backend.id]
-    description     = "Redis from backend only"
+    egress {
+      from_port   = 443
+      to_port     = 443
+      protocol    = "tcp"
+      cidr_blocks = ["0.0.0.0/0"]
+      description = "HTTPS to GitLab and Docker registries"
+    }
+
+    egress {
+      from_port   = 80
+      to_port     = 80
+      protocol    = "tcp"
+      cidr_blocks = ["0.0.0.0/0"]
+      description = "HTTP for package downloads"
+    }
+
+    egress {
+      from_port       = 5432
+      to_port         = 5432
+      protocol        = "tcp"
+      security_groups = [aws_security_group.database.id]
+      description     = "Database for running migrations"
+    }
+
+    tags = { Name = "${var.project_name}-cicd-runner-sg" }
   }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags = { Name = "${var.project_name}-redis-sg" }
-}
-
-# ── Security Group 7: VPC Endpoints ──
-# Allows private subnets to reach AWS services (S3, Secrets Manager)
-# WITHOUT going through the internet or NAT Gateway
-resource "aws_security_group" "vpc_endpoints" {
-  name        = "${var.project_name}-vpc-endpoints-sg"
-  description = "Allow backend to reach AWS services via private link"
-  vpc_id      = aws_vpc.lbbs.id
-
-  ingress {
-    from_port       = 443
-    to_port         = 443
-    protocol        = "tcp"
-    security_groups = [aws_security_group.backend.id]
-    description     = "HTTPS from backend to AWS services"
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags = { Name = "${var.project_name}-vpc-endpoints-sg" }
-}
-
-# ── Security Group 8: Monitoring (Prometheus/Grafana) ──
-# For monitoring dashboards — only accessible from admin IPs
-resource "aws_security_group" "monitoring" {
-  name        = "${var.project_name}-monitoring-sg"
-  description = "Monitoring dashboard access from admin IPs"
-  vpc_id      = aws_vpc.lbbs.id
-
-  # Grafana dashboard
-  ingress {
-    from_port   = 3000
-    to_port     = 3000
-    protocol    = "tcp"
-    cidr_blocks = var.admin_ip_addresses
-    description = "Grafana from admin IPs"
-  }
-
-  # Prometheus
-  ingress {
-    from_port   = 9090
-    to_port     = 9090
-    protocol    = "tcp"
-    cidr_blocks = var.admin_ip_addresses
-    description = "Prometheus from admin IPs"
-  }
-
-  # Accept metrics from backend containers
-  ingress {
-    from_port       = 9090
-    to_port         = 9090
-    protocol        = "tcp"
-    security_groups = [aws_security_group.backend.id]
-    description     = "Metrics from backend"
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags = { Name = "${var.project_name}-monitoring-sg" }
-}
-
-# ── Security Group 9: CI/CD Runner ──
-# If we run a GitLab runner in AWS for faster pipelines
-resource "aws_security_group" "cicd_runner" {
-  name        = "${var.project_name}-cicd-runner-sg"
-  description = "GitLab CI/CD runner — outbound only, no inbound"
-  vpc_id      = aws_vpc.lbbs.id
-
-  # NO ingress rules — nobody can connect TO the runner
-  # Runner only makes OUTBOUND connections
-
-  egress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-    description = "HTTPS to GitLab and Docker registries"
-  }
-
-  egress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-    description = "HTTP for package downloads"
-  }
-
-  egress {
-    from_port       = 5432
-    to_port         = 5432
-    protocol        = "tcp"
-    security_groups = [aws_security_group.database.id]
-    description     = "Database for running migrations"
-  }
-
-  tags = { Name = "${var.project_name}-cicd-runner-sg" }
-}
 }
 

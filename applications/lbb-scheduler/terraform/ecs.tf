@@ -27,7 +27,7 @@ resource "aws_ecs_cluster" "lbbs" {
 
   setting {
     name  = "containerInsights"
-    value = "enabled"  # Detailed monitoring
+    value = "enabled" # Detailed monitoring
   }
 
   tags = { Name = "${var.project_name}-cluster" }
@@ -49,8 +49,8 @@ resource "aws_ecs_task_definition" "backend" {
   family                   = "${var.project_name}-backend"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
-  cpu                      = "256"    # 0.25 vCPU
-  memory                   = "512"    # 512 MB RAM
+  cpu                      = "256" # 0.25 vCPU
+  memory                   = "512" # 512 MB RAM
   execution_role_arn       = aws_iam_role.ecs_execution_role.arn
   task_role_arn            = aws_iam_role.lbbs_backend_role.arn
 
@@ -100,13 +100,13 @@ resource "aws_ecs_service" "backend" {
   name            = "${var.project_name}-backend"
   cluster         = aws_ecs_cluster.lbbs.id
   task_definition = aws_ecs_task_definition.backend.arn
-  desired_count   = 2  # Run 2 copies for high availability
+  desired_count   = 2 # Run 2 copies for high availability
   launch_type     = "FARGATE"
 
   network_configuration {
     subnets          = [aws_subnet.private_a.id, aws_subnet.private_b.id]
     security_groups  = [aws_security_group.backend.id]
-    assign_public_ip = false  # Private subnet — no public IP
+    assign_public_ip = false # Private subnet — no public IP
   }
 
   load_balancer {
@@ -117,7 +117,7 @@ resource "aws_ecs_service" "backend" {
 
   deployment_circuit_breaker {
     enable   = true
-    rollback = true  # Auto-rollback if deployment fails
+    rollback = true # Auto-rollback if deployment fails
   }
 
   depends_on = [aws_lb_listener.https]
@@ -143,6 +143,6 @@ resource "aws_appautoscaling_policy" "backend_cpu" {
     predefined_metric_specification {
       predefined_metric_type = "ECSServiceAverageCPUUtilization"
     }
-    target_value = 70.0  # Scale up when CPU > 70%
+    target_value = 70.0 # Scale up when CPU > 70%
   }
 }

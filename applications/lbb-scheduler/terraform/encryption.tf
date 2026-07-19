@@ -53,7 +53,7 @@
 resource "aws_kms_key" "database" {
   description             = "Encryption key for LBBS database (RDS)"
   deletion_window_in_days = 30
-  enable_key_rotation     = true  # Automatically rotate key yearly
+  enable_key_rotation     = true # Automatically rotate key yearly
 
   # WHO can use this key:
   policy = jsonencode({
@@ -302,7 +302,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "reports_kms" {
       sse_algorithm     = "aws:kms"
       kms_master_key_id = aws_kms_key.storage.arn
     }
-    bucket_key_enabled = true  # Reduces KMS API calls and cost
+    bucket_key_enabled = true # Reduces KMS API calls and cost
   }
 }
 
@@ -481,12 +481,12 @@ resource "aws_s3_bucket_policy" "cloudtrail" {
 
 # CloudTrail itself
 resource "aws_cloudtrail" "lbbs" {
-  name                       = "${var.project_name}-audit-trail"
-  s3_bucket_name             = aws_s3_bucket.cloudtrail.id
+  name                          = "${var.project_name}-audit-trail"
+  s3_bucket_name                = aws_s3_bucket.cloudtrail.id
   include_global_service_events = true
-  is_multi_region_trail      = false
-  enable_logging             = true
-  kms_key_id                 = aws_kms_key.logs.arn
+  is_multi_region_trail         = false
+  enable_logging                = true
+  kms_key_id                    = aws_kms_key.logs.arn
 
   # Log all management events (create, delete, modify resources)
   event_selector {

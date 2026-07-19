@@ -148,6 +148,54 @@ variable "create_audit_account" {
   default     = false
 }
 
+variable "create_fraud_detection_account" {
+  description = "Create the Fraud Detection account for ML-based fraud scoring."
+  type        = bool
+  default     = false
+}
+
+variable "fraud_detection_account_email" {
+  description = "Email for Fraud Detection account."
+  type        = string
+  default     = "mwangi.maina83+fraud@gmail.com"
+}
+
+variable "create_customer_portal_account" {
+  description = "Create the Customer Portal account for customer-facing banking app."
+  type        = bool
+  default     = false
+}
+
+variable "customer_portal_account_email" {
+  description = "Email for Customer Portal account."
+  type        = string
+  default     = "mwangi.maina83+portal@gmail.com"
+}
+
+variable "create_data_analytics_account" {
+  description = "Create the Data Analytics account for data lake and regulatory reporting."
+  type        = bool
+  default     = false
+}
+
+variable "data_analytics_account_email" {
+  description = "Email for Data Analytics account."
+  type        = string
+  default     = "mwangi.maina83+analytics@gmail.com"
+}
+
+variable "create_bi_reporting_account" {
+  description = "Create the BI Reporting account for compliance dashboards, Power BI, and executive reporting."
+  type        = bool
+  default     = false
+}
+
+variable "bi_reporting_account_email" {
+  description = "Email for BI Reporting account."
+  type        = string
+  default     = "mwangi.maina83+bireport@gmail.com"
+}
+
 # -----------------------------------------------------------
 # OU STRUCTURE TOGGLES
 # OUs are created in sequence — root first, then children.

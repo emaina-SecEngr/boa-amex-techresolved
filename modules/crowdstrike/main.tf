@@ -187,10 +187,10 @@ resource "aws_s3_bucket_policy" "crowdstrike_fdr" {
         ]
       },
       {
-        Sid    = "DenyHTTP"
-        Effect = "Deny"
+        Sid       = "DenyHTTP"
+        Effect    = "Deny"
         Principal = { AWS = "*" }
-        Action   = "s3:*"
+        Action    = "s3:*"
         Resource = [
           aws_s3_bucket.crowdstrike_fdr[0].arn,
           "${aws_s3_bucket.crowdstrike_fdr[0].arn}/*"
@@ -240,9 +240,9 @@ resource "aws_ssm_association" "falcon_sensor" {
     name    = "CrowdStrike-FalconSensor"
     version = var.sensor_version
     additionalArguments = jsonencode({
-      SSM_CS_CCID           = var.crowdstrike_cid
-      SSM_CS_INSTALLTOKEN   = ""
-      SSM_CS_GROUPINGTOKEN  = ""
+      SSM_CS_CCID                      = var.crowdstrike_cid
+      SSM_CS_INSTALLTOKEN              = ""
+      SSM_CS_GROUPINGTOKEN             = ""
       SSM_CS_WINDOWS_ADDITIONAL_PARAMS = "--tags=BOA-AMEX"
       SSM_CS_LINUX_ADDITIONAL_PARAMS   = "--tags=BOA-AMEX"
     })

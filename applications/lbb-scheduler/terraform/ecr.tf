@@ -18,7 +18,7 @@ resource "aws_ecr_repository" "backend" {
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {
-    scan_on_push = true  # Scan every image for vulnerabilities
+    scan_on_push = true # Scan every image for vulnerabilities
   }
 
   encryption_configuration {

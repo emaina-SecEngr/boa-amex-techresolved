@@ -11,7 +11,7 @@
 
 resource "aws_lb" "lbbs" {
   name               = "${var.project_name}-alb"
-  internal           = false  # Internet-facing
+  internal           = false # Internet-facing
   load_balancer_type = "application"
   security_groups    = [aws_security_group.alb.id]
   subnets            = [aws_subnet.public_a.id, aws_subnet.public_b.id]
@@ -25,7 +25,7 @@ resource "aws_lb_target_group" "backend" {
   port        = 8000
   protocol    = "HTTP"
   vpc_id      = aws_vpc.lbbs.id
-  target_type = "ip"  # ECS Fargate uses IP targets
+  target_type = "ip" # ECS Fargate uses IP targets
 
   health_check {
     enabled             = true

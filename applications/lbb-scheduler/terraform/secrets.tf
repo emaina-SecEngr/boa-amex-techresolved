@@ -13,7 +13,7 @@ resource "aws_secretsmanager_secret" "jwt_secret" {
 
 resource "aws_secretsmanager_secret_version" "jwt_secret" {
   secret_id     = aws_secretsmanager_secret.jwt_secret.id
-  secret_string = var.jwt_secret_key  # From terraform.tfvars
+  secret_string = var.jwt_secret_key # From terraform.tfvars
 }
 
 resource "aws_secretsmanager_secret" "database_url" {
@@ -23,7 +23,7 @@ resource "aws_secretsmanager_secret" "database_url" {
 }
 
 resource "aws_secretsmanager_secret_version" "database_url" {
-  secret_id = aws_secretsmanager_secret.database_url.id
+  secret_id     = aws_secretsmanager_secret.database_url.id
   secret_string = "postgresql://${aws_db_instance.lbbs.username}:${var.db_password}@${aws_db_instance.lbbs.endpoint}/${aws_db_instance.lbbs.db_name}"
 }
 

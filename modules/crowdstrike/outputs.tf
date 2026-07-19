@@ -35,13 +35,13 @@ output "crowdstrike_alerts_topic_arn" {
 output "crowdstrike_status" {
   description = "CrowdStrike configuration summary"
   value = {
-    falcon_horizon     = var.enable_crowdstrike && var.enable_falcon_horizon ? "CREATED — arn:aws:iam::${var.security_tooling_account_id}:role/CrowdStrikeFalconHorizon" : "DISABLED"
-    sensor_deployment  = var.enable_crowdstrike && var.enable_sensor_deployment ? "ENABLED" : "DISABLED"
-    fdr                = var.enable_crowdstrike && var.enable_fdr ? "ENABLED — ${var.fdr_bucket_name}" : "DISABLED"
-    edr                = var.enable_crowdstrike && var.enable_edr ? "ENABLED" : "DISABLED"
+    falcon_horizon      = var.enable_crowdstrike && var.enable_falcon_horizon ? "CREATED — arn:aws:iam::${var.security_tooling_account_id}:role/CrowdStrikeFalconHorizon" : "DISABLED"
+    sensor_deployment   = var.enable_crowdstrike && var.enable_sensor_deployment ? "ENABLED" : "DISABLED"
+    fdr                 = var.enable_crowdstrike && var.enable_fdr ? "ENABLED — ${var.fdr_bucket_name}" : "DISABLED"
+    edr                 = var.enable_crowdstrike && var.enable_edr ? "ENABLED" : "DISABLED"
     identity_protection = var.enable_crowdstrike && var.enable_identity_protection ? "ENABLED" : "DISABLED"
-    container_security = var.enable_crowdstrike && var.enable_container_security ? "ENABLED" : "DISABLED"
-    trial_status       = "Contact CrowdStrike for 15-day trial — crowdstrike.com/free-trial"
+    container_security  = var.enable_crowdstrike && var.enable_container_security ? "ENABLED" : "DISABLED"
+    trial_status        = "Contact CrowdStrike for 15-day trial — crowdstrike.com/free-trial"
   }
 }
 

@@ -90,13 +90,13 @@ variable "alert_email" {
   type        = string
   default     = "emaina@arizona.edu"
   variable "admin_ip_addresses" {
-  description = "Admin IP addresses allowed for SSH and monitoring access"
-  type        = list(string)
-  default = [
-    "0.0.0.0/0",  # CHANGE THIS to your real IP in production!
-    # Example: "72.34.56.78/32" = only YOUR IP address
-    # Find your IP: https://whatismyipaddress.com
-  ]
-}
+    description = "Admin IP addresses allowed for SSH and monitoring access"
+    type        = list(string)
+    default = [
+      "0.0.0.0/0", # CHANGE THIS to your real IP in production!
+      # Example: "72.34.56.78/32" = only YOUR IP address
+      # Find your IP: https://whatismyipaddress.com
+    ]
+  }
 }
 

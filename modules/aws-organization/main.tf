@@ -294,7 +294,119 @@ resource "aws_organizations_account" "pipeline" {
     Name        = "Amex-Pipeline-CICD"
     AccountType = "Pipeline"
     Environment = "NonProduction"
-    Purpose     = "Terraform Cloud, Checkov, SAST scanning"
+    Purpose     = "Terraform Cloud + Checkov + SAST scanning"
+  })
+}
+
+# -----------------------------------------------------------
+# FRAUD DETECTION ACCOUNT — ML fraud scoring (Production OU)
+# Hosts SageMaker endpoints for real-time fraud detection
+# LBB-FraudEngine workload deployed here
+# -----------------------------------------------------------
+resource "aws_organizations_account" "fraud_detection" {
+  count     = var.create_fraud_detection_account ? 1 : 0
+  name      = "Amex-Fraud-Detection"
+  email     = var.fraud_detection_account_email
+  parent_id = var.create_production_ou ? aws_organizations_organizational_unit.production[0].id : aws_organizations_organization.main.roots[0].id
+
+  iam_user_access_to_billing = "DENY"
+
+  lifecycle {
+    prevent_destroy = true
+    ignore_changes  = [role_name, iam_user_access_to_billing]
+  }
+
+  tags = merge(var.common_tags, {
+    Name         = "Amex-Fraud-Detection"
+    AccountType  = "Workload"
+    BusinessUnit = "Risk-Management"
+    Workload     = "LBB-FraudEngine"
+    DataClass    = "Confidential"
+    Environment  = "Production"
+  })
+}
+
+# -----------------------------------------------------------
+# CUSTOMER PORTAL ACCOUNT — banking portal (Production OU)
+# Customer-facing web application
+# LBB-BankingPortal workload deployed here
+# -----------------------------------------------------------
+resource "aws_organizations_account" "customer_portal" {
+  count     = var.create_customer_portal_account ? 1 : 0
+  name      = "Amex-Customer-Portal"
+  email     = var.customer_portal_account_email
+  parent_id = var.create_production_ou ? aws_organizations_organizational_unit.production[0].id : aws_organizations_organization.main.roots[0].id
+
+  iam_user_access_to_billing = "DENY"
+
+  lifecycle {
+    prevent_destroy = true
+    ignore_changes  = [role_name, iam_user_access_to_billing]
+  }
+
+  tags = merge(var.common_tags, {
+    Name         = "Amex-Customer-Portal"
+    AccountType  = "Workload"
+    BusinessUnit = "Consumer-Banking"
+    Workload     = "LBB-BankingPortal"
+    DataClass    = "Confidential"
+    Environment  = "Production"
+  })
+}
+
+# -----------------------------------------------------------
+# DATA ANALYTICS ACCOUNT — data lake + reporting (Production OU)
+# Data lake, regulatory reporting, ML training data
+# LBB-RegReporting workload deployed here
+# -----------------------------------------------------------
+resource "aws_organizations_account" "data_analytics" {
+  count     = var.create_data_analytics_account ? 1 : 0
+  name      = "Amex-Data-Analytics"
+  email     = var.data_analytics_account_email
+  parent_id = var.create_production_ou ? aws_organizations_organizational_unit.production[0].id : aws_organizations_organization.main.roots[0].id
+
+  iam_user_access_to_billing = "DENY"
+
+  lifecycle {
+    prevent_destroy = true
+    ignore_changes  = [role_name, iam_user_access_to_billing]
+  }
+
+  tags = merge(var.common_tags, {
+    Name         = "Amex-Data-Analytics"
+    AccountType  = "Workload"
+    BusinessUnit = "Enterprise-Technology"
+    Workload     = "LBB-RegReporting"
+    DataClass    = "Confidential"
+    Environment  = "Production"
+  })
+}
+
+# -----------------------------------------------------------
+# BI REPORTING ACCOUNT — compliance dashboards (Production OU)
+# Power BI dashboards, QuickSight, executive reporting
+# LBB-BI workload deployed here
+# -----------------------------------------------------------
+resource "aws_organizations_account" "bi_reporting" {
+  count     = var.create_bi_reporting_account ? 1 : 0
+  name      = "Amex-BI-Reporting"
+  email     = var.bi_reporting_account_email
+  parent_id = var.create_production_ou ? aws_organizations_organizational_unit.production[0].id : aws_organizations_organization.main.roots[0].id
+
+  iam_user_access_to_billing = "DENY"
+
+  lifecycle {
+    prevent_destroy = true
+    ignore_changes  = [role_name, iam_user_access_to_billing]
+  }
+
+  tags = merge(var.common_tags, {
+    Name         = "Amex-BI-Reporting"
+    AccountType  = "Workload"
+    BusinessUnit = "Enterprise-Technology"
+    Workload     = "LBB-BI"
+    DataClass    = "Internal"
+    Environment  = "Production"
   })
 }
 

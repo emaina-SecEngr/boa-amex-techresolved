@@ -219,11 +219,11 @@ variable "common_tags" {
   description = "Tags applied to all resources."
   type        = map(string)
   default = {
-    Project     = "BOA-AMEX-TechResolved"
-    Owner       = "Eliud-Maina"
-    Consultant  = "Abuhari-Consulting-Services"
-    ManagedBy   = "Terraform"
-    Phase       = "3-ExtendedDetection"
-    Module      = "crowdstrike"
+    Project    = "BOA-AMEX-TechResolved"
+    Owner      = "Eliud-Maina"
+    Consultant = "Abuhari-Consulting-Services"
+    ManagedBy  = "Terraform"
+    Phase      = "3-ExtendedDetection"
+    Module     = "crowdstrike"
   }
 }

@@ -19,16 +19,16 @@ data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
 
 locals {
-  account_id      = data.aws_caller_identity.current.account_id
-  region          = data.aws_region.current.name
-  enable_infra    = var.enable_soar && var.enable_infrastructure_playbooks
-  enable_iam      = var.enable_soar && var.enable_iam_playbooks
-  enable_token    = var.enable_soar && var.enable_token_playbooks
+  account_id       = data.aws_caller_identity.current.account_id
+  region           = data.aws_region.current.name
+  enable_infra     = var.enable_soar && var.enable_infrastructure_playbooks
+  enable_iam       = var.enable_soar && var.enable_iam_playbooks
+  enable_token     = var.enable_soar && var.enable_token_playbooks
   enable_container = var.enable_soar && var.enable_container_playbooks
-  enable_network  = var.enable_soar && var.enable_network_playbooks
-  enable_runtime  = var.enable_soar && var.enable_runtime_playbooks
-  enable_vuln     = var.enable_soar && var.enable_vulnerability_playbooks
-  enable_exfil    = var.enable_soar && var.enable_data_exfiltration_playbooks
+  enable_network   = var.enable_soar && var.enable_network_playbooks
+  enable_runtime   = var.enable_soar && var.enable_runtime_playbooks
+  enable_vuln      = var.enable_soar && var.enable_vulnerability_playbooks
+  enable_exfil     = var.enable_soar && var.enable_data_exfiltration_playbooks
 }
 
 # -----------------------------------------------------------
@@ -348,16 +348,16 @@ resource "aws_lambda_function" "soar_dispatcher" {
 
   environment {
     variables = {
-      PROJECT_PREFIX          = var.project_prefix
-      REGION                  = local.region
-      ACCOUNT_ID              = local.account_id
-      SNS_TOPIC_ARN           = aws_sns_topic.soar_alerts[0].arn
-      SNS_CRITICAL_TOPIC_ARN  = aws_sns_topic.soar_critical[0].arn
-      QUARANTINE_SG_ID        = var.quarantine_vpc_id != "" && length(aws_security_group.quarantine) > 0 ? aws_security_group.quarantine[0].id : ""
-      FORENSICS_BUCKET        = var.forensics_bucket_name
-      RESPONSE_MODE           = var.response_mode
-      LOG_ARCHIVE_BUCKET      = var.log_archive_bucket_name
-      GUARDDUTY_DETECTOR_ID   = var.guardduty_detector_id
+      PROJECT_PREFIX         = var.project_prefix
+      REGION                 = local.region
+      ACCOUNT_ID             = local.account_id
+      SNS_TOPIC_ARN          = aws_sns_topic.soar_alerts[0].arn
+      SNS_CRITICAL_TOPIC_ARN = aws_sns_topic.soar_critical[0].arn
+      QUARANTINE_SG_ID       = var.quarantine_vpc_id != "" && length(aws_security_group.quarantine) > 0 ? aws_security_group.quarantine[0].id : ""
+      FORENSICS_BUCKET       = var.forensics_bucket_name
+      RESPONSE_MODE          = var.response_mode
+      LOG_ARCHIVE_BUCKET     = var.log_archive_bucket_name
+      GUARDDUTY_DETECTOR_ID  = var.guardduty_detector_id
     }
   }
 
@@ -631,9 +631,9 @@ resource "aws_cloudwatch_event_rule" "s3_public" {
     detail-type = ["Security Hub Findings - Imported"]
     detail = {
       findings = {
-        Title = [{ prefix = "S3" }]
-        Severity = { Label = ["CRITICAL", "HIGH"] }
-        Workflow = { Status = ["NEW"] }
+        Title      = [{ prefix = "S3" }]
+        Severity   = { Label = ["CRITICAL", "HIGH"] }
+        Workflow   = { Status = ["NEW"] }
         Compliance = { Status = ["FAILED"] }
       }
     }

@@ -306,9 +306,9 @@ resource "aws_secretsmanager_secret_version" "cyberark_cpm_config" {
         notify_on_failure = ["security-team@lbbs.org"]
       }
       database_credentials = {
-        rotation_interval = "168h"
-        password_length   = 48
-        complexity        = "uppercase,lowercase,numbers,symbols"
+        rotation_interval   = "168h"
+        password_length     = 48
+        complexity          = "uppercase,lowercase,numbers,symbols"
         verify_after_change = true
         notify_on_failure   = ["dba-team@lbbs.org", "security-team@lbbs.org"]
       }
@@ -318,8 +318,8 @@ resource "aws_secretsmanager_secret_version" "cyberark_cpm_config" {
         notify_on_failure = ["identity-team@lbbs.org"]
       }
       cicd_credentials = {
-        rotation_interval = "24h"
-        password_length   = 32
+        rotation_interval  = "24h"
+        password_length    = 32
         scoped_to_pipeline = true
         notify_on_failure  = ["devops-team@lbbs.org"]
       }
@@ -347,9 +347,9 @@ resource "aws_s3_bucket" "psm_recordings" {
   force_destroy = false
 
   tags = {
-    Project  = var.project_name
-    CyberArk = "psm"
-    DataType = "session-recordings"
+    Project   = var.project_name
+    CyberArk  = "psm"
+    DataType  = "session-recordings"
     Retention = "7-years"
   }
 }
@@ -392,7 +392,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "psm_recordings" {
     }
 
     expiration {
-      days = 2555  # 7 years retention for compliance
+      days = 2555 # 7 years retention for compliance
     }
   }
 }
@@ -489,9 +489,9 @@ resource "aws_secretsmanager_secret_version" "conjur_config" {
     # Secret definitions with rotation
     secrets = {
       "lbbs/database/url" = {
-        description  = "PostgreSQL connection string for backend"
-        rotation     = "7d"
-        dynamic      = true
+        description = "PostgreSQL connection string for backend"
+        rotation    = "7d"
+        dynamic     = true
       }
       "lbbs/database/admin-password" = {
         description  = "PostgreSQL admin password (DBA only)"
@@ -557,16 +557,16 @@ resource "aws_secretsmanager_secret_version" "cyberark_identity_config" {
         grants      = ["lbbs_app_access"]
       }
       level_2_elevated = {
-        description = "Elevated access for admin operations"
-        factors     = ["password", "hardware_token", "biometric"]
-        grants      = ["admin_panel", "user_management", "reporting"]
-        session_duration = "2h"
+        description       = "Elevated access for admin operations"
+        factors           = ["password", "hardware_token", "biometric"]
+        grants            = ["admin_panel", "user_management", "reporting"]
+        session_duration  = "2h"
         session_recording = true
       }
       level_3_critical = {
-        description = "Critical access requiring approval"
-        factors     = ["password", "hardware_token", "biometric", "manager_approval"]
-        grants      = ["database_direct", "infrastructure_admin", "key_management"]
+        description       = "Critical access requiring approval"
+        factors           = ["password", "hardware_token", "biometric", "manager_approval"]
+        grants            = ["database_direct", "infrastructure_admin", "key_management"]
         session_duration  = "1h"
         session_recording = true
         dual_control      = true
@@ -577,34 +577,34 @@ resource "aws_secretsmanager_secret_version" "cyberark_identity_config" {
     # JIT (Just In Time) access rules
     jit_access = {
       database_admin = {
-        description     = "Temporary DBA access for maintenance"
-        max_duration    = "4h"
-        requires        = ["change_ticket", "manager_approval"]
-        auto_revoke     = true
-        notify          = ["security-team@lbbs.org"]
+        description       = "Temporary DBA access for maintenance"
+        max_duration      = "4h"
+        requires          = ["change_ticket", "manager_approval"]
+        auto_revoke       = true
+        notify            = ["security-team@lbbs.org"]
         audit_all_queries = true
       }
       kubernetes_admin = {
-        description     = "Temporary K8s admin for deployments"
-        max_duration    = "2h"
-        requires        = ["deployment_ticket"]
-        auto_revoke     = true
-        notify          = ["devops-lead@lbbs.org"]
+        description  = "Temporary K8s admin for deployments"
+        max_duration = "2h"
+        requires     = ["deployment_ticket"]
+        auto_revoke  = true
+        notify       = ["devops-lead@lbbs.org"]
       }
       okta_admin = {
-        description     = "Temporary Okta admin for user issues"
-        max_duration    = "1h"
-        requires        = ["support_ticket", "security_approval"]
-        auto_revoke     = true
-        notify          = ["identity-team@lbbs.org", "security-team@lbbs.org"]
+        description  = "Temporary Okta admin for user issues"
+        max_duration = "1h"
+        requires     = ["support_ticket", "security_approval"]
+        auto_revoke  = true
+        notify       = ["identity-team@lbbs.org", "security-team@lbbs.org"]
       }
       break_glass = {
-        description     = "Emergency access (P1 incidents only)"
-        max_duration    = "8h"
-        requires        = ["incident_number"]
-        auto_revoke     = true
-        notify          = ["ciso@lbbs.org", "cto@lbbs.org", "security-team@lbbs.org"]
-        post_review     = "mandatory_within_24h"
+        description  = "Emergency access (P1 incidents only)"
+        max_duration = "8h"
+        requires     = ["incident_number"]
+        auto_revoke  = true
+        notify       = ["ciso@lbbs.org", "cto@lbbs.org", "security-team@lbbs.org"]
+        post_review  = "mandatory_within_24h"
       }
     }
   })
