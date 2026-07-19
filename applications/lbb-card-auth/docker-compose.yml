@@ -1,0 +1,36 @@
+# LBB Card Auth — Local Development
+version: "3.8"
+
+services:
+  card-auth-api:
+    build: .
+    ports:
+      - "8001:8000"
+    environment:
+      - ENVIRONMENT=development
+      - DATABASE_URL=postgresql://lbb_admin:devpassword@card-auth-db:5432/lbb_card_auth
+      - API_KEY=dev-api-key
+      - TOKENIZATION_KEY=dev-tokenization-key
+      - LOG_LEVEL=DEBUG
+    depends_on:
+      card-auth-db:
+        condition: service_healthy
+
+  card-auth-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: lbb_admin
+      POSTGRES_PASSWORD: devpassword
+      POSTGRES_DB: lbb_card_auth
+    ports:
+      - "5433:5432"
+    volumes:
+      - card_auth_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lbb_admin -d lbb_card_auth"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  card_auth_data:
