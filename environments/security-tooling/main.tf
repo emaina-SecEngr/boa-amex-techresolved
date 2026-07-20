@@ -556,3 +556,38 @@ module "config_conformance_packs" {
   deploy_conformance_packs = false
   common_tags              = var.common_tags
 }
+
+# ============================================================
+# MODULE CALL — ai-security-agent
+# Bedrock-backed triage of GuardDuty/Security Hub findings,
+# with action authority to invoke SOAR playbooks. allowed_playbooks
+# starts empty — the agent triages and alerts on everything, but
+# cannot invoke SOAR until specific playbooks are authorized here.
+# PREREQUISITE: Bedrock model access must be requested/approved in
+# the AWS Console for this account before InvokeModel succeeds.
+# ============================================================
+module "ai_security_agent" {
+  source = "../../modules/ai-security-agent"
+
+  aws_region                  = var.aws_region
+  project_prefix              = var.project_prefix
+  security_tooling_account_id = var.security_tooling_account_id
+  management_account_id       = var.management_account_id
+  organization_id             = var.organization_id
+  audit_account_id            = var.audit_account_id
+
+  enable_ai_security_agent = true
+
+  bedrock_model_id          = "anthropic.claude-sonnet-4-5-20250929-v1:0"
+  triage_severity_threshold = 4.0
+
+  enable_autonomous_response = true
+  allowed_playbooks          = []
+
+  soar_dispatcher_arn = module.soar.soar_dispatcher_arn
+
+  security_alert_email = var.security_alert_email
+  common_tags          = var.common_tags
+
+  depends_on = [module.soar, module.guardduty, module.security_hub]
+}
