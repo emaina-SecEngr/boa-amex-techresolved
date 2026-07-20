@@ -122,6 +122,18 @@ variable "deploy_scps" {
   default     = true
 }
 
+variable "deploy_tag_policy" {
+  description = "Deploy the Organizations Tag Policy (advisory tag standardization — does not block anything). Safe to enable any time OU/root IDs are known."
+  type        = bool
+  default     = false
+}
+
+variable "deploy_tag_enforcement_scp" {
+  description = "Deploy the DenyUntaggedResourceCreation SCP. New blocking behavior — defaults false so it can be dry-run reviewed before enabling."
+  type        = bool
+  default     = false
+}
+
 # -----------------------------------------------------------
 # ENTRA ID CONNECTION TOGGLE
 # The single flag that connects everything to Entra ID

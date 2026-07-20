@@ -72,6 +72,178 @@ provider "aws" {
   }
 }
 
+# Cross-account providers — workload accounts created by this same
+# Terraform (aws_organizations_account). Each new account auto-gets an
+# OrganizationAccountAccessRole trusting Management, so these assume
+# into it directly with Management's default credentials — no new
+# local AWS CLI profiles needed.
+provider "aws" {
+  alias  = "pci_cde"
+  region = var.aws_region
+
+  assume_role {
+    role_arn = module.aws_organization.pci_cde_account_id != "" ? "arn:aws:iam::${module.aws_organization.pci_cde_account_id}:role/OrganizationAccountAccessRole" : "arn:aws:iam::123456789012:role/OrganizationAccountAccessRole"
+  }
+
+  default_tags {
+    tags = {
+      Project     = "BOA-AMEX-TechResolved"
+      Owner       = "Eliud-Maina"
+      Consultant  = "Abuhari-Consulting-Services"
+      Environment = "PCI-CDE"
+      ManagedBy   = "Terraform"
+      Repository  = "boa-amex-techresolved"
+    }
+  }
+}
+
+provider "aws" {
+  alias  = "core_banking"
+  region = var.aws_region
+
+  assume_role {
+    role_arn = module.aws_organization.core_banking_account_id != "" ? "arn:aws:iam::${module.aws_organization.core_banking_account_id}:role/OrganizationAccountAccessRole" : "arn:aws:iam::123456789012:role/OrganizationAccountAccessRole"
+  }
+
+  default_tags {
+    tags = {
+      Project     = "BOA-AMEX-TechResolved"
+      Owner       = "Eliud-Maina"
+      Consultant  = "Abuhari-Consulting-Services"
+      Environment = "CoreBanking"
+      ManagedBy   = "Terraform"
+      Repository  = "boa-amex-techresolved"
+    }
+  }
+}
+
+provider "aws" {
+  alias  = "dev"
+  region = var.aws_region
+
+  assume_role {
+    role_arn = module.aws_organization.dev_account_id != "" ? "arn:aws:iam::${module.aws_organization.dev_account_id}:role/OrganizationAccountAccessRole" : "arn:aws:iam::123456789012:role/OrganizationAccountAccessRole"
+  }
+
+  default_tags {
+    tags = {
+      Project     = "BOA-AMEX-TechResolved"
+      Owner       = "Eliud-Maina"
+      Consultant  = "Abuhari-Consulting-Services"
+      Environment = "Dev"
+      ManagedBy   = "Terraform"
+      Repository  = "boa-amex-techresolved"
+    }
+  }
+}
+
+provider "aws" {
+  alias  = "pipeline"
+  region = var.aws_region
+
+  assume_role {
+    role_arn = module.aws_organization.pipeline_account_id != "" ? "arn:aws:iam::${module.aws_organization.pipeline_account_id}:role/OrganizationAccountAccessRole" : "arn:aws:iam::123456789012:role/OrganizationAccountAccessRole"
+  }
+
+  default_tags {
+    tags = {
+      Project     = "BOA-AMEX-TechResolved"
+      Owner       = "Eliud-Maina"
+      Consultant  = "Abuhari-Consulting-Services"
+      Environment = "Pipeline"
+      ManagedBy   = "Terraform"
+      Repository  = "boa-amex-techresolved"
+    }
+  }
+}
+
+provider "aws" {
+  alias  = "fraud_detection"
+  region = var.aws_region
+
+  assume_role {
+    role_arn = module.aws_organization.fraud_detection_account_id != "" ? "arn:aws:iam::${module.aws_organization.fraud_detection_account_id}:role/OrganizationAccountAccessRole" : "arn:aws:iam::123456789012:role/OrganizationAccountAccessRole"
+  }
+
+  default_tags {
+    tags = {
+      Project     = "BOA-AMEX-TechResolved"
+      Owner       = "Eliud-Maina"
+      Consultant  = "Abuhari-Consulting-Services"
+      Environment = "FraudDetection"
+      ManagedBy   = "Terraform"
+      Repository  = "boa-amex-techresolved"
+    }
+  }
+}
+
+# customer_portal account does not exist yet (AWS Organizations account
+# limit reached) — provider block still must be declared since the
+# audit-account module references this alias, but it deliberately has
+# NO assume_role block. Terraform authenticates every configured
+# provider at plan time regardless of whether any resource using it
+# has count > 0, so pointing this at a dummy/nonexistent role ARN
+# fails outright ("IAM Role ... cannot be assumed") even though
+# nothing would ever use it. Falling back to Management's own
+# credentials keeps this provider authenticating successfully as a
+# harmless no-op — create_customer_portal_audit_role stays false
+# below, so no resource ever actually uses this alias.
+provider "aws" {
+  alias  = "customer_portal"
+  region = var.aws_region
+
+  default_tags {
+    tags = {
+      Project     = "BOA-AMEX-TechResolved"
+      Owner       = "Eliud-Maina"
+      Consultant  = "Abuhari-Consulting-Services"
+      Environment = "CustomerPortal"
+      ManagedBy   = "Terraform"
+      Repository  = "boa-amex-techresolved"
+    }
+  }
+}
+
+provider "aws" {
+  alias  = "data_analytics"
+  region = var.aws_region
+
+  assume_role {
+    role_arn = module.aws_organization.data_analytics_account_id != "" ? "arn:aws:iam::${module.aws_organization.data_analytics_account_id}:role/OrganizationAccountAccessRole" : "arn:aws:iam::123456789012:role/OrganizationAccountAccessRole"
+  }
+
+  default_tags {
+    tags = {
+      Project     = "BOA-AMEX-TechResolved"
+      Owner       = "Eliud-Maina"
+      Consultant  = "Abuhari-Consulting-Services"
+      Environment = "DataAnalytics"
+      ManagedBy   = "Terraform"
+      Repository  = "boa-amex-techresolved"
+    }
+  }
+}
+
+provider "aws" {
+  alias  = "bi_reporting"
+  region = var.aws_region
+
+  assume_role {
+    role_arn = module.aws_organization.bi_reporting_account_id != "" ? "arn:aws:iam::${module.aws_organization.bi_reporting_account_id}:role/OrganizationAccountAccessRole" : "arn:aws:iam::123456789012:role/OrganizationAccountAccessRole"
+  }
+
+  default_tags {
+    tags = {
+      Project     = "BOA-AMEX-TechResolved"
+      Owner       = "Eliud-Maina"
+      Consultant  = "Abuhari-Consulting-Services"
+      Environment = "BIReporting"
+      ManagedBy   = "Terraform"
+      Repository  = "boa-amex-techresolved"
+    }
+  }
+}
+
 provider "azuread" {
   tenant_id = "288a15d1-700c-482b-a591-7c1d4e6c4f3c"
   use_cli   = true
@@ -249,6 +421,11 @@ module "iam_identity_center" {
   deploy_identity_center = true
   deploy_scps            = true
 
+  # Phase 6 — tag governance. Advisory policy + enforcing SCP
+  # both default off; enable deliberately after dry-run review.
+  deploy_tag_policy          = false
+  deploy_tag_enforcement_scp = false
+
   # Entra ID connected manually via console
   # See docs/entra-id-integration.md for details
   deploy_entra_id_connection = false
@@ -284,6 +461,14 @@ module "audit_account" {
   providers = {
     aws.management       = aws
     aws.security_tooling = aws.security_tooling
+    aws.pci_cde          = aws.pci_cde
+    aws.core_banking     = aws.core_banking
+    aws.dev              = aws.dev
+    aws.pipeline         = aws.pipeline
+    aws.fraud_detection  = aws.fraud_detection
+    aws.customer_portal  = aws.customer_portal
+    aws.data_analytics   = aws.data_analytics
+    aws.bi_reporting     = aws.bi_reporting
   }
 
   aws_region                  = var.aws_region
@@ -292,8 +477,31 @@ module "audit_account" {
   management_account_id       = var.management_account_id
   security_tooling_account_id = var.security_tooling_account_id
 
+  pci_cde_account_id         = module.aws_organization.pci_cde_account_id
+  core_banking_account_id    = module.aws_organization.core_banking_account_id
+  dev_account_id             = module.aws_organization.dev_account_id
+  pipeline_account_id        = module.aws_organization.pipeline_account_id
+  fraud_detection_account_id = module.aws_organization.fraud_detection_account_id
+  # Deliberately static, not module.aws_organization.customer_portal_account_id.
+  # That output stays unknown-until-apply for as long as the account keeps
+  # failing to create in the same run, and an unknown element poisons the
+  # whole compact()'d Resource list in assume_audit_roles — blocking that
+  # policy's update indefinitely. create_customer_portal_audit_role is
+  # already false, so this value is never actually used for anything.
+  customer_portal_account_id = ""
+  data_analytics_account_id  = module.aws_organization.data_analytics_account_id
+  bi_reporting_account_id    = module.aws_organization.bi_reporting_account_id
+
   create_management_audit_role       = true
   create_security_tooling_audit_role = true
+  create_pci_cde_audit_role          = true
+  create_core_banking_audit_role     = true
+  create_dev_audit_role              = true
+  create_pipeline_audit_role         = true
+  create_fraud_detection_audit_role  = true
+  create_customer_portal_audit_role  = false
+  create_data_analytics_audit_role   = true
+  create_bi_reporting_audit_role     = true
 
   common_tags = var.common_tags
 }

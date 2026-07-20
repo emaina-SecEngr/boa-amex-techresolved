@@ -78,6 +78,26 @@ output "pipeline_account_id" {
   value       = var.create_pipeline_account ? aws_organizations_account.pipeline[0].id : ""
 }
 
+output "fraud_detection_account_id" {
+  description = "Fraud Detection account ID"
+  value       = var.create_fraud_detection_account ? aws_organizations_account.fraud_detection[0].id : ""
+}
+
+output "customer_portal_account_id" {
+  description = "Customer Portal account ID"
+  value       = var.create_customer_portal_account ? aws_organizations_account.customer_portal[0].id : ""
+}
+
+output "data_analytics_account_id" {
+  description = "Data Analytics account ID"
+  value       = var.create_data_analytics_account ? aws_organizations_account.data_analytics[0].id : ""
+}
+
+output "bi_reporting_account_id" {
+  description = "BI Reporting account ID"
+  value       = var.create_bi_reporting_account ? aws_organizations_account.bi_reporting[0].id : ""
+}
+
 # -----------------------------------------------------------
 # DELEGATED ADMINISTRATOR STATUS
 # -----------------------------------------------------------
