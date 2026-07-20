@@ -61,6 +61,62 @@ variable "security_tooling_account_id" {
 }
 
 # -----------------------------------------------------------
+# WORKLOAD ACCOUNT IDs
+# Passed in from module.aws_organization outputs. Empty string
+# means the account doesn't exist yet (e.g. customer_portal,
+# which hit the AWS Organizations account limit) — the
+# corresponding create_*_audit_role toggle must stay false
+# until a real account id is available.
+# -----------------------------------------------------------
+variable "pci_cde_account_id" {
+  description = "PCI-CDE workload account ID."
+  type        = string
+  default     = ""
+}
+
+variable "core_banking_account_id" {
+  description = "Core Banking workload account ID."
+  type        = string
+  default     = ""
+}
+
+variable "dev_account_id" {
+  description = "Dev workload account ID."
+  type        = string
+  default     = ""
+}
+
+variable "pipeline_account_id" {
+  description = "Pipeline/CI-CD workload account ID."
+  type        = string
+  default     = ""
+}
+
+variable "fraud_detection_account_id" {
+  description = "Fraud Detection workload account ID."
+  type        = string
+  default     = ""
+}
+
+variable "customer_portal_account_id" {
+  description = "Customer Portal workload account ID. Empty until the account is actually created."
+  type        = string
+  default     = ""
+}
+
+variable "data_analytics_account_id" {
+  description = "Data Analytics workload account ID."
+  type        = string
+  default     = ""
+}
+
+variable "bi_reporting_account_id" {
+  description = "BI Reporting workload account ID."
+  type        = string
+  default     = ""
+}
+
+# -----------------------------------------------------------
 # ROLE CONFIGURATION
 # -----------------------------------------------------------
 variable "audit_role_name" {
@@ -93,6 +149,54 @@ variable "create_management_audit_role" {
 
 variable "create_security_tooling_audit_role" {
   description = "Create audit read-only role in Security Tooling account."
+  type        = bool
+  default     = true
+}
+
+variable "create_pci_cde_audit_role" {
+  description = "Create audit read-only role in PCI-CDE account."
+  type        = bool
+  default     = true
+}
+
+variable "create_core_banking_audit_role" {
+  description = "Create audit read-only role in Core Banking account."
+  type        = bool
+  default     = true
+}
+
+variable "create_dev_audit_role" {
+  description = "Create audit read-only role in Dev account."
+  type        = bool
+  default     = true
+}
+
+variable "create_pipeline_audit_role" {
+  description = "Create audit read-only role in Pipeline/CI-CD account."
+  type        = bool
+  default     = true
+}
+
+variable "create_fraud_detection_audit_role" {
+  description = "Create audit read-only role in Fraud Detection account."
+  type        = bool
+  default     = true
+}
+
+variable "create_customer_portal_audit_role" {
+  description = "Create audit read-only role in Customer Portal account. Must stay false until the account actually exists (currently blocked by the AWS Organizations account limit)."
+  type        = bool
+  default     = false
+}
+
+variable "create_data_analytics_audit_role" {
+  description = "Create audit read-only role in Data Analytics account."
+  type        = bool
+  default     = true
+}
+
+variable "create_bi_reporting_audit_role" {
+  description = "Create audit read-only role in BI Reporting account."
   type        = bool
   default     = true
 }

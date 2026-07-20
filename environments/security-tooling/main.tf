@@ -541,3 +541,18 @@ module "soar" {
 
   depends_on = [module.guardduty, module.security_hub]
 }
+
+# ============================================================
+# MODULE CALL — config-conformance-packs
+# Phase 6 — org-wide Config conformance packs (PCI-DSS,
+# NIST 800-53). Definition only — deploy_conformance_packs
+# stays false until AWS Config recording is enabled per-account
+# in a later phase, otherwise these produce no evaluations.
+# ============================================================
+module "config_conformance_packs" {
+  source = "../../modules/config-conformance-packs"
+
+  project_prefix           = var.project_prefix
+  deploy_conformance_packs = false
+  common_tags              = var.common_tags
+}
