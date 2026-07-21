@@ -367,7 +367,7 @@ module "management_baseline" {
   cloudtrail_log_prefix            = "org-cloudtrail"
   cloudtrail_kms_key_arn           = ""
   cloudtrail_include_global_events = true
-  cloudtrail_multi_region          = true
+  cloudtrail_multi_region          = false
   cloudtrail_log_file_validation   = true
   cloudtrail_s3_data_events        = false
   cloudtrail_lambda_data_events    = false

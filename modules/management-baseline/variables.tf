@@ -74,7 +74,7 @@ variable "organization_id" {
 variable "enable_org_cloudtrail" {
   description = "Enable organization-wide CloudTrail. Captures ALL API events from ALL accounts. Managed from Management account — cannot be disabled by member accounts. Should always be true in production."
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "cloudtrail_log_bucket_name" {
