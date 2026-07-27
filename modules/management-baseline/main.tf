@@ -96,8 +96,9 @@ resource "aws_cloudtrail" "organization" {
   dynamic "event_selector" {
     for_each = !var.cloudtrail_s3_data_events && !var.cloudtrail_lambda_data_events ? [1] : []
     content {
-      read_write_type           = "All"
-      include_management_events = true
+      read_write_type                  = "All"
+      include_management_events        = true
+      exclude_management_event_sources = var.cloudtrail_exclude_event_sources
     }
   }
 

@@ -125,6 +125,12 @@ variable "cloudtrail_lambda_data_events" {
   default     = false
 }
 
+variable "cloudtrail_exclude_event_sources" {
+  description = "High-volume, low-value event sources to exclude from CloudTrail. KMS and RDS Data API create feedback loops with S3 logging that inflate costs. CIS Benchmarks recommend this exclusion."
+  type        = list(string)
+  default     = ["kms.amazonaws.com", "rdsdata.amazonaws.com"]
+}
+
 # -----------------------------------------------------------
 # CONFIG AGGREGATOR CONFIGURATION
 # -----------------------------------------------------------
