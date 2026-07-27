@@ -196,6 +196,30 @@ variable "bi_reporting_account_email" {
   default     = "mwangi.maina83+bireport@gmail.com"
 }
 
+variable "create_testing_account" {
+  description = "Create the Testing account for QA, integration testing, and security testing."
+  type        = bool
+  default     = false
+}
+
+variable "testing_account_email" {
+  description = "Email for Testing account."
+  type        = string
+  default     = "mwangi.maina83+testing@gmail.com"
+}
+
+variable "create_sandbox_account" {
+  description = "Create the Sandbox account for malware analysis, honeypots, and security research. Heavily restricted — no connectivity to production."
+  type        = bool
+  default     = false
+}
+
+variable "sandbox_account_email" {
+  description = "Email for Sandbox account."
+  type        = string
+  default     = "mwangi.maina83+sandbox@gmail.com"
+}
+
 # -----------------------------------------------------------
 # OU STRUCTURE TOGGLES
 # OUs are created in sequence — root first, then children.
@@ -223,6 +247,12 @@ variable "create_compliance_ou" {
   description = "Create Compliance OU containing Audit account."
   type        = bool
   default     = true
+}
+
+variable "create_sandbox_ou" {
+  description = "Create Sandbox OU containing malware analysis and honeypot accounts. Fully isolated — no network path to production or dev."
+  type        = bool
+  default     = false
 }
 
 variable "create_pipeline_ou" {

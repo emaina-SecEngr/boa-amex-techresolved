@@ -322,6 +322,7 @@ module "aws_organization" {
   create_non_production_ou = true
   create_pipeline_ou       = true
   create_compliance_ou     = true
+  create_sandbox_ou        = true
 
   # Account creation — all false until deliberately enabled
   # Enable audit account FIRST before any workload accounts
@@ -334,6 +335,8 @@ module "aws_organization" {
   create_customer_portal_account = true
   create_data_analytics_account  = true
   create_bi_reporting_account    = true
+  create_testing_account         = true
+  create_sandbox_account         = true
 
   # Delegated administrator — enable after Phase 2 is deployed
   # Security Tooling must have GuardDuty/SecHub running first
@@ -416,6 +419,8 @@ module "iam_identity_center" {
   non_production_ou_id = module.aws_organization.non_production_ou_id
   compliance_ou_id     = module.aws_organization.compliance_ou_id
   pipeline_ou_id       = module.aws_organization.pipeline_ou_id
+  sandbox_ou_id        = module.aws_organization.sandbox_ou_id
+  sandbox_ou_enabled   = module.aws_organization.sandbox_ou_enabled
 
   # Deploy Permission Sets and SCPs
   deploy_identity_center = true
@@ -580,6 +585,7 @@ output "ou_structure" {
     non_production = module.aws_organization.non_production_ou_id
     pipeline       = module.aws_organization.pipeline_ou_id
     compliance     = module.aws_organization.compliance_ou_id
+    sandbox        = module.aws_organization.sandbox_ou_id
   }
 }
 

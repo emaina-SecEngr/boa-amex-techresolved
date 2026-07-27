@@ -107,6 +107,18 @@ variable "pipeline_ou_id" {
   default     = ""
 }
 
+variable "sandbox_ou_id" {
+  description = "Sandbox OU ID — DenyVPCPeering and DenyTransitGatewayAttachment SCPs applied here to guarantee network isolation from Production and Dev."
+  type        = string
+  default     = ""
+}
+
+variable "sandbox_ou_enabled" {
+  description = "Whether the Sandbox OU is enabled. Used to gate SCP attachment count instead of the OU ID string, since the ID is unknown-at-plan-time on the same apply that creates the OU."
+  type        = bool
+  default     = false
+}
+
 # -----------------------------------------------------------
 # MASTER DEPLOYMENT TOGGLES
 # -----------------------------------------------------------

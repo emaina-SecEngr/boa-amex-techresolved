@@ -149,6 +149,18 @@ resource "aws_organizations_organizational_unit" "compliance" {
   })
 }
 
+resource "aws_organizations_organizational_unit" "sandbox" {
+  count     = var.create_sandbox_ou ? 1 : 0
+  name      = "Sandbox"
+  parent_id = aws_organizations_organization.main.roots[0].id
+
+  tags = merge(var.common_tags, {
+    Name    = "${var.project_prefix}-ou-sandbox"
+    Purpose = "Malware analysis and honeypot accounts - fully isolated from production and dev"
+    SCPs    = "DenyVPCPeering / DenyTransitGatewayAttachment - no network path out of this OU"
+  })
+}
+
 # -----------------------------------------------------------
 # EXISTING ACCOUNT OU PLACEMENT
 # Move existing accounts into correct OUs
@@ -351,6 +363,73 @@ resource "aws_organizations_account" "customer_portal" {
     Workload     = "LBB-BankingPortal"
     DataClass    = "Confidential"
     Environment  = "Production"
+  })
+}
+
+# -----------------------------------------------------------
+# TESTING ACCOUNT — QA and security testing (NonProduction OU)
+# Integration testing, pen testing, security validation
+# Separate from Dev to prevent test data contamination
+# -----------------------------------------------------------
+resource "aws_organizations_account" "testing" {
+  count     = var.create_testing_account ? 1 : 0
+  name      = "Amex-Testing"
+  email     = var.testing_account_email
+  parent_id = var.create_non_production_ou ? aws_organizations_organizational_unit.non_production[0].id : aws_organizations_organization.main.roots[0].id
+
+  iam_user_access_to_billing = "DENY"
+
+  lifecycle {
+    prevent_destroy = true
+    ignore_changes  = [role_name, iam_user_access_to_billing]
+  }
+
+  tags = merge(var.common_tags, {
+    Name         = "Amex-Testing"
+    AccountType  = "Workload"
+    BusinessUnit = "Enterprise-Technology"
+    Workload     = "QA-SecurityTesting"
+    DataClass    = "Internal"
+    Environment  = "Testing"
+  })
+}
+
+# -----------------------------------------------------------
+# SANDBOX ACCOUNT — Malware analysis & honeypots (NonProduction OU)
+# COMPLETELY ISOLATED — no VPC peering, no Transit Gateway
+# connection to ANY production or dev account.
+#
+# Used for:
+#   Malware detonation and analysis (controlled environment)
+#   Honeypots (Cowrie SSH, Dionaea, T-Pot)
+#   Red team exercises
+#   Security tool evaluation
+#   Threat research and IOC validation
+#
+# SECURITY: This account has NO network path to production.
+# If malware escapes the sandbox, it cannot reach real systems.
+# -----------------------------------------------------------
+resource "aws_organizations_account" "sandbox" {
+  count     = var.create_sandbox_account ? 1 : 0
+  name      = "Amex-Sandbox"
+  email     = var.sandbox_account_email
+  parent_id = var.create_sandbox_ou ? aws_organizations_organizational_unit.sandbox[0].id : aws_organizations_organization.main.roots[0].id
+
+  iam_user_access_to_billing = "DENY"
+
+  lifecycle {
+    prevent_destroy = true
+    ignore_changes  = [role_name, iam_user_access_to_billing]
+  }
+
+  tags = merge(var.common_tags, {
+    Name             = "Amex-Sandbox"
+    AccountType      = "Sandbox"
+    BusinessUnit     = "Security-Engineering"
+    Workload         = "Malware-Analysis-Honeypots"
+    DataClass        = "Restricted"
+    Environment      = "Sandbox"
+    NetworkIsolation = "FULL"
   })
 }
 

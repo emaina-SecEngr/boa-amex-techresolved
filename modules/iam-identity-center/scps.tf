@@ -13,20 +13,25 @@
 # They define the MAXIMUM permissions available.
 # An action must be BOTH allowed by SCP AND by IAM policy.
 #
-# OUR FIVE SCPs:
-# 1. DenyRootUsage          — prevents root login org-wide
-# 2. DenyPublicS3           — prevents public S3 buckets
-# 3. DenyRegionExit         — restricts to approved regions
-# 4. RequireEncryption      — enforces encryption at rest
-# 5. DenyDisablingSecurity  — prevents disabling security tools
+# OUR SCPs:
+# 1. DenyRootUsage              — prevents root login org-wide
+# 2. DenyPublicS3               — prevents public S3 buckets
+# 3. DenyRegionExit             — restricts to approved regions
+# 4. RequireEncryption          — enforces encryption at rest
+# 5. DenyDisablingSecurity      — prevents disabling security tools
+# 6. DenyAllWrites              — Compliance OU read-only guarantee
+# 7. DenyVPCPeering             — Sandbox OU network isolation
+# 8. DenyTransitGatewayAttach   — Sandbox OU network isolation
 #
 # ATTACHMENT STRATEGY:
-# Root → DenyRootUsage (applies everywhere)
-# Security OU → all 5 SCPs (strictest)
-# Production OU → all 5 SCPs (strictest)
-# NonProduction OU → DenyRootUsage + DenyPublicS3 (relaxed)
-# Pipeline OU → DenyRootUsage only (needs flexibility)
+# Root → DenyRootUsage, DenyRegionExit, DenyDisablingSecurity (applies everywhere)
+# Security OU → DenyPublicS3, RequireEncryption (strictest)
+# Production OU → DenyPublicS3, RequireEncryption (strictest)
+# NonProduction OU → DenyPublicS3 (relaxed)
+# Pipeline OU → root-level SCPs only (needs flexibility)
 # Compliance OU → DenyAllWrites (audit account protection)
+# Sandbox OU → DenyVPCPeering, DenyTransitGatewayAttachment
+#              (no network path out of this OU — malware/honeypot isolation)
 # ============================================================
 
 # -----------------------------------------------------------
@@ -426,4 +431,96 @@ resource "aws_organizations_policy_attachment" "deny_all_writes_compliance" {
   count     = var.deploy_scps && var.compliance_ou_id != "" ? 1 : 0
   policy_id = aws_organizations_policy.deny_all_writes_compliance[0].id
   target_id = var.compliance_ou_id
+}
+
+# -----------------------------------------------------------
+# SCP 7 — DENY VPC PEERING (Sandbox OU only)
+# Malware analysis and honeypot accounts must have NO network
+# path to Production or Dev. VPC peering is the most common
+# way that path would get created by accident (or by malware
+# with sufficient IAM permissions attempting to pivot).
+# Applied to: Sandbox OU only
+# -----------------------------------------------------------
+resource "aws_organizations_policy" "deny_vpc_peering_sandbox" {
+  count = var.deploy_scps ? 1 : 0
+
+  name        = "${var.project_prefix}-deny-vpc-peering-sandbox"
+  description = "Applied to Sandbox OU only. Prevents creation or acceptance of VPC peering connections. Guarantees malware analysis and honeypot accounts have no network path to Production or Dev."
+  type        = "SERVICE_CONTROL_POLICY"
+
+  content = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "DenyVPCPeeringConnections"
+        Effect = "Deny"
+        Action = [
+          "ec2:CreateVpcPeeringConnection",
+          "ec2:AcceptVpcPeeringConnection",
+          "ec2:RejectVpcPeeringConnection",
+          "ec2:ModifyVpcPeeringConnectionOptions"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+
+  tags = merge(var.common_tags, {
+    Name    = "${var.project_prefix}-deny-vpc-peering-sandbox"
+    SCPType = "Preventive"
+    Purpose = "Sandbox network isolation - no VPC peering to Production or Dev"
+  })
+}
+
+resource "aws_organizations_policy_attachment" "deny_vpc_peering_sandbox" {
+  count     = var.deploy_scps && var.sandbox_ou_enabled ? 1 : 0
+  policy_id = aws_organizations_policy.deny_vpc_peering_sandbox[0].id
+  target_id = var.sandbox_ou_id
+}
+
+# -----------------------------------------------------------
+# SCP 8 — DENY TRANSIT GATEWAY ATTACHMENT (Sandbox OU only)
+# Blocks the second common path into the shared network —
+# attaching a Sandbox VPC to any Transit Gateway. Without
+# this, a TGW share from another account could reconnect
+# Sandbox to the rest of the Organization's network.
+# Applied to: Sandbox OU only
+# -----------------------------------------------------------
+resource "aws_organizations_policy" "deny_tgw_attachment_sandbox" {
+  count = var.deploy_scps ? 1 : 0
+
+  name        = "${var.project_prefix}-deny-tgw-attachment-sandbox"
+  description = "Applied to Sandbox OU only. Prevents creation or acceptance of Transit Gateway attachments (VPC, peering, and Connect). Guarantees malware analysis and honeypot accounts have no network path to Production or Dev."
+  type        = "SERVICE_CONTROL_POLICY"
+
+  content = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "DenyTransitGatewayAttachments"
+        Effect = "Deny"
+        Action = [
+          "ec2:CreateTransitGatewayVpcAttachment",
+          "ec2:AcceptTransitGatewayVpcAttachment",
+          "ec2:CreateTransitGatewayPeeringAttachment",
+          "ec2:AcceptTransitGatewayPeeringAttachment",
+          "ec2:CreateTransitGatewayConnect",
+          "ec2:ModifyTransitGatewayVpcAttachment"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+
+  tags = merge(var.common_tags, {
+    Name    = "${var.project_prefix}-deny-tgw-attachment-sandbox"
+    SCPType = "Preventive"
+    Purpose = "Sandbox network isolation - no Transit Gateway attachment to Production or Dev"
+  })
+}
+
+resource "aws_organizations_policy_attachment" "deny_tgw_attachment_sandbox" {
+  count     = var.deploy_scps && var.sandbox_ou_enabled ? 1 : 0
+  policy_id = aws_organizations_policy.deny_tgw_attachment_sandbox[0].id
+  target_id = var.sandbox_ou_id
 }

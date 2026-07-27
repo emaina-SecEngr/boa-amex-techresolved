@@ -50,6 +50,16 @@ output "compliance_ou_id" {
   value       = var.create_compliance_ou ? aws_organizations_organizational_unit.compliance[0].id : ""
 }
 
+output "sandbox_ou_id" {
+  description = "Sandbox OU ID — malware analysis and honeypot accounts placed here, isolated from Production and NonProduction"
+  value       = var.create_sandbox_ou ? aws_organizations_organizational_unit.sandbox[0].id : ""
+}
+
+output "sandbox_ou_enabled" {
+  description = "Whether the Sandbox OU is enabled. Plain boolean (not derived from the OU resource's computed ID) so downstream SCP attachment 'count' can be evaluated at plan time even when the OU is created in the same apply."
+  value       = var.create_sandbox_ou
+}
+
 # -----------------------------------------------------------
 # ACCOUNT IDs — referenced by cross-account role modules
 # -----------------------------------------------------------
